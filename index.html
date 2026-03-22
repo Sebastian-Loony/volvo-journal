@@ -170,17 +170,27 @@ body.ptr-pulling{transition:transform .1s}
 .fta:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)22}
 
 /* ═══════════ SECTION LABEL ═══════════ */
-.sl{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.sb{width:3px;height:13px;background:var(--gold);display:inline-block;border-radius:2px;flex-shrink:0}
+.sl{font-size:11px;font-weight:700;color:var(--gold-l);letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0}
+.sl-left{display:flex;align-items:center;gap:8px}
+.sl-icon{font-size:14px;line-height:1}
+.sl-count{font-size:10px;font-weight:600;color:var(--muted);background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1px 8px;letter-spacing:0}
+
+/* ═══════════ SECTION BLOCK ═══════════ */
+.sec-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.sec-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--card2)}
+.sec-body{padding:0 0 10px}
 
 /* ═══════════ TABLE ═══════════ */
-.tw{overflow-x:auto;margin-bottom:14px;-webkit-overflow-scrolling:touch}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:var(--bg2);color:var(--muted);padding:7px 8px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden}
+th{background:var(--card2);color:var(--muted);padding:8px 10px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--border);white-space:nowrap;overflow:hidden}
 th:first-child{text-align:left}
 th.gold{color:var(--gold-l)}
-td{padding:8px 6px;border-bottom:1px solid var(--border)33;vertical-align:top;text-align:center}
+td{padding:9px 10px;border-bottom:1px solid var(--border)55;vertical-align:top;text-align:center}
 td:first-child{text-align:left}
+/* Зебра */
+tbody tr:nth-child(even) td{background:rgba(255,255,255,0.02)}
+tbody tr:hover td{background:var(--accent-bg)}
 /* Все колонки кроме первой — по центру */
 td:nth-child(n+2),th:nth-child(n+2){text-align:center}
 td:nth-child(n+2) .tdi{text-align:center}
@@ -191,6 +201,17 @@ td:nth-child(n+2) .tdi{text-align:center}
 .tdi-brand{white-space:normal;word-break:break-word;overflow-wrap:break-word}
 .ib{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 4px;border-radius:4px;min-width:26px;min-height:26px;display:block}
 .ib:hover{color:#e74c3c}
+.sec-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 4px}
+.sec-add{background:none;border:1px dashed var(--border);border-radius:6px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 14px;cursor:pointer;letter-spacing:.3px;transition:all .15s}
+.sec-add:hover{border-color:var(--gold);color:var(--gold-l)}
+.sec-sum{font-size:12px;color:var(--muted)}.sec-sum span{color:var(--gold-l);font-weight:700}
+
+/* Блок рекомендаций */
+.rec-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.rec-header{padding:10px 14px;border-bottom:1px solid var(--border);background:var(--card2);font-size:11px;font-weight:700;color:var(--gold-l);letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.rec-body{padding:10px 14px}
+.fta{background:transparent;border:none;color:var(--text);padding:0;font-size:13px;font-weight:400;width:100%;resize:none;outline:none;min-height:60px;font-family:'Inter',sans-serif;line-height:1.6}
+.fta:focus{color:var(--text)}
 
 /* ПК — авто layout, наименование широкое, остальные по содержимому */
 @media(min-width:768px){
@@ -885,28 +906,45 @@ function card(r, q=''){
     <div><label class="fl">\u0414\u0430\u0442\u0430</label>
       <input class="fi" type="date" value="${r.date||''}" oninput="upd(${r.id},'date',this.value)"></div>
   </div>
-  <div style="margin-bottom:20px">
-    <div class="sl"><span class="sb"></span>\u0417\u0430\u043f\u0447\u0430\u0441\u0442\u0438</div>
-    <div class="tw"><table>
-      <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435</th><th>\u0411\u0440\u0435\u043d\u0434</th><th>\u0410\u0440\u0442\u0438\u043a\u0443\u043b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0426\u0435\u043d\u0430 \u0437\u0430 \u0448\u0442, &#8381;</th><th class="gold">\u0418\u0442\u043e\u0433\u043e, &#8381;</th><th></th></tr></thead>
-      <tbody id="pt${r.id}">${r.parts.map(p=>pr(r.id,p,q)).join('')}</tbody>
-    </table></div>
-    <button class="smb" onclick="aP(${r.id})">+ \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0437\u0430\u043f\u0447\u0430\u0441\u0442\u044c</button>
-    <div class="tsum" id="ps${r.id}">\u0418\u0442\u043e\u0433\u043e: <span>${fmt(sP(r.parts))}</span></div>
+  <div class="sec-block">
+    <div class="sec-header">
+      <div class="sl"><div class="sl-left"><span class="sl-icon">&#128295;</span>\u0417\u0430\u043f\u0447\u0430\u0441\u0442\u0438</div><span class="sl-count">${r.parts.filter(p=>p.name).length} \u043f\u043e\u0437.</span></div>
+    </div>
+    <div class="sec-body">
+      <div class="tw"><table>
+        <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435</th><th>\u0411\u0440\u0435\u043d\u0434</th><th>\u0410\u0440\u0442\u0438\u043a\u0443\u043b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0426\u0435\u043d\u0430 \u0437\u0430 \u0448\u0442, &#8381;</th><th class="gold">\u0418\u0442\u043e\u0433\u043e, &#8381;</th><th></th></tr></thead>
+        <tbody id="pt${r.id}">${r.parts.map(p=>pr(r.id,p,q)).join('')}</tbody>
+      </table></div>
+      <div class="sec-footer">
+        <button class="sec-add" onclick="aP(${r.id})">+ \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0437\u0430\u043f\u0447\u0430\u0441\u0442\u044c</button>
+        <div class="sec-sum" id="ps${r.id}">\u0418\u0442\u043e\u0433\u043e: <span>${fmt(sP(r.parts))}</span></div>
+      </div>
+    </div>
   </div>
-  <div style="margin-bottom:20px">
-    <div class="sl"><span class="sb"></span>\u0420\u0430\u0431\u043e\u0442\u044b</div>
-    <div class="tw"><table>
-      <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c, &#8381;</th><th></th></tr></thead>
-      <tbody id="wt${r.id}">${r.works.map(w=>wr(r.id,w,q)).join('')}</tbody>
-    </table></div>
-    <button class="smb" onclick="aW(${r.id})">+ \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0440\u0430\u0431\u043e\u0442\u0443</button>
-    <div class="tsum" id="ws${r.id}">\u0418\u0442\u043e\u0433\u043e: <span>${fmt(sW(r.works))}</span></div>
+
+  <div class="sec-block">
+    <div class="sec-header">
+      <div class="sl"><div class="sl-left"><span class="sl-icon">&#128296;</span>\u0420\u0430\u0431\u043e\u0442\u044b</div><span class="sl-count">${r.works.filter(w=>w.name).length} \u043f\u043e\u0437.</span></div>
+    </div>
+    <div class="sec-body">
+      <div class="tw"><table>
+        <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c, &#8381;</th><th></th></tr></thead>
+        <tbody id="wt${r.id}">${r.works.map(w=>wr(r.id,w,q)).join('')}</tbody>
+      </table></div>
+      <div class="sec-footer">
+        <button class="sec-add" onclick="aW(${r.id})">+ \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0440\u0430\u0431\u043e\u0442\u0443</button>
+        <div class="sec-sum" id="ws${r.id}">\u0418\u0442\u043e\u0433\u043e: <span>${fmt(sW(r.works))}</span></div>
+      </div>
+    </div>
   </div>
+
   ${tot>0?'<div class="trow"><div><span class="tlbl">\u0417\u0430\u043f\u0447\u0430\u0441\u0442\u0438: </span><span class="tval">'+fmt(sP(r.parts))+'</span></div><div><span class="tlbl">\u0420\u0430\u0431\u043e\u0442\u044b: </span><span class="tval">'+fmt(sW(r.works))+'</span></div><div><span class="tlbl" style="color:var(--text)">\u0418\u0442\u043e\u0433\u043e: </span><span class="tval" style="font-size:16px">'+fmt(tot)+'</span></div></div>':''}
-  <div style="margin-top:16px">
-    <label class="fl">\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0430\u0446\u0438\u0438 / \u0437\u0430\u043c\u0435\u0442\u043a\u0438</label>
-    <textarea class="fta" placeholder="\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u0442\u0441\u044f \u0437\u0430\u043c\u0435\u043d\u0438\u0442\u044c..." oninput="upd(${r.id},'recommendations',this.value)">${esc(r.recommendations)}</textarea>
+
+  <div class="rec-block">
+    <div class="rec-header"><span>&#128203;</span> \u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0430\u0446\u0438\u0438 / \u0437\u0430\u043c\u0435\u0442\u043a\u0438</div>
+    <div class="rec-body">
+      <textarea class="fta" placeholder="\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u0442\u0441\u044f \u0437\u0430\u043c\u0435\u043d\u0438\u0442\u044c..." oninput="upd(${r.id},'recommendations',this.value)">${esc(r.recommendations)}</textarea>
+    </div>
   </div>
   <div class="btn-row">
     <button class="svbtn" onclick="mSave(${r.id})">\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c</button>
