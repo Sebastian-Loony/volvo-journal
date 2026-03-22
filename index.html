@@ -497,14 +497,21 @@ async function dbLoadCFG(){
 }
 async function dbSaveCFG(){
   try{
-    await sf('settings',{
+    // Используем прямой fetch чтобы точно контролировать заголовки
+    const res=await fetch(SU+'/rest/v1/settings',{
       method:'POST',
-      headers:{'Prefer':'resolution=merge-duplicates'},
+      headers:{
+        'apikey':SK,
+        'Authorization':'Bearer '+SK,
+        'Content-Type':'application/json',
+        'Prefer':'resolution=merge-duplicates,return=representation'
+      },
       body:JSON.stringify({key:'cfg',value:CFG,updated_at:new Date().toISOString()})
     });
+    if(!res.ok){const e=await res.text();console.error('CFG save error:',e);}
     localStorage.setItem('vj_cfg',JSON.stringify(CFG));
   }catch(e){
-    // fallback to localStorage only
+    console.error('dbSaveCFG error:',e);
     localStorage.setItem('vj_cfg',JSON.stringify(CFG));
   }
 }
@@ -528,7 +535,7 @@ function openCarSettings(){
   document.getElementById('car-settings-modal').classList.add('open');
 }
 function closeCarSettings(){document.getElementById('car-settings-modal').classList.remove('open');}
-function saveCarSettings(){
+async function saveCarSettings(){
   CFG.make=document.getElementById('s-make').value.trim()||'Volvo';
   CFG.model=document.getElementById('s-model').value.trim()||'S60';
   CFG.year=document.getElementById('s-year').value.trim()||'2004';
@@ -538,7 +545,11 @@ function saveCarSettings(){
   CFG.gearbox=document.getElementById('s-gearbox').value.trim();
   CFG.color=document.getElementById('s-color').value.trim();
   CFG.colorcode=document.getElementById('s-colorcode').value.trim();
-  dbSaveCFG();closeCarSettings();renderDash();
+  closeCarSettings();
+  renderDash();
+  sb('\u25cf \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435...');
+  await dbSaveCFG();
+  sb('\u25cf \u0421\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u2713');
   toast('\u0414\u0430\u043d\u043d\u044b\u0435 \u0430\u0432\u0442\u043e \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u044b \u2713');
 }
 
@@ -564,10 +575,14 @@ function setPeriod(p){
   CFG.period=p;
   document.querySelectorAll('.period-opt').forEach(el=>el.classList.toggle('active',el.dataset.p===String(p)));
 }
-function saveSettings(){
+async function saveSettings(){
   CFG.toInterval=parseInt(document.getElementById('s-toint').value)||10000;
   CFG.osago=document.getElementById('s-osago').value;
-  dbSaveCFG();closeSettings();renderDash();
+  closeSettings();
+  renderDash();
+  sb('\u25cf \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435...');
+  await dbSaveCFG();
+  sb('\u25cf \u0421\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u2713');
   toast('\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u044b \u2713');
 }
 
