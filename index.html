@@ -324,12 +324,12 @@ td:nth-child(n+2) .tdi{text-align:center}
 /* Разделитель между блоками в дашборде */
 .dash-separator{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:16px 0}
 /* Таблица работ — широкое наименование, компактные числа */
-.works-table{table-layout:fixed;width:100%}
-.works-table .works-name-col{text-align:left}
-.works-table .works-num-col{width:75px;white-space:nowrap}
+.works-table{table-layout:auto;width:100%}
+.works-table .works-name-col{width:100%;text-align:left}
+.works-table .works-num-col{width:1%;white-space:nowrap;padding-left:12px}
 @media(max-width:767px){
   .works-table{min-width:340px}
-  .works-table .works-num-col{width:60px;font-size:11px}
+  .works-table .works-num-col{font-size:11px;padding-left:8px}
 }
 
 .search-wrap{margin-bottom:14px}
