@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f0f0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Volvo Journal">
+<title>Сервисный журнал — Volvo S60</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#B8922A;--gold-l:#D4A843;--dark:#0f0f0f;--card:#1a1816;--card2:#211f1c;--border:#2e2b26;--text:#e8e0d0;--muted:#8a8070}
+body{background:var(--dark);color:var(--text);font-family:'Georgia',serif;min-height:100vh;padding-bottom:60px}
+input,select,textarea,button{font-family:inherit}button{cursor:pointer}
+.header{background:linear-gradient(135deg,#1a1610 0%,#0f0d0a 60%,#1a1410 100%);border-bottom:1px solid var(--border);padding:32px 24px 24px;position:relative;overflow:hidden}
+.ha{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold-l),var(--gold),transparent)}
+.car-title{font-size:28px;font-weight:bold;color:var(--gold-l);letter-spacing:2px;margin-bottom:4px}
+.car-sub{font-size:13px;color:var(--muted);letter-spacing:1px;margin-bottom:20px}
+.car-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;max-width:800px}
+.cf{background:rgba(184,146,42,0.06);border:1px solid var(--border);border-radius:6px;padding:8px 14px}
+.cl{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px}
+.cv{font-size:14px;color:var(--text)}
+.cdot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#B8922A;margin-right:6px;vertical-align:middle;box-shadow:0 0 6px #B8922A88}
+.tf{border-color:#B8922A44!important;background:rgba(184,146,42,0.06)!important}.tf .cv{color:var(--gold-l);font-weight:bold}
+.sync-bar{text-align:center;padding:6px;font-size:11px;background:rgba(184,146,42,0.07);border-bottom:1px solid var(--border);letter-spacing:1px;color:var(--muted)}
+.sync-bar.err{background:rgba(192,57,43,0.1);color:#e74c3c}
+.main{max-width:900px;margin:0 auto;padding:24px 16px 0}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-top:24px;margin-bottom:8px}
+.stitle{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.tbtns{display:flex;gap:8px}
+.dd{position:relative}
+.dbtn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:12px;padding:6px 14px;letter-spacing:.3px}
+.dbtn.gold{background:rgba(184,146,42,.1);border-color:rgba(184,146,42,.35);color:var(--gold-l)}
+.dmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:100;background:#1e1c18;border:1px solid var(--border);border-radius:8px;min-width:185px;box-shadow:0 8px 24px rgba(0,0,0,.5);overflow:hidden;display:none}
+.dmenu.open{display:block}
+.ditem{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;border-bottom:1px solid rgba(46,43,38,.3);color:var(--text);padding:10px 16px;font-size:13px;text-align:left;cursor:pointer}
+.ditem:hover{background:rgba(184,146,42,.1)}
+.ditem label{display:flex;align-items:center;gap:10px;cursor:pointer;width:100%}
+.dnote{padding:8px 16px;font-size:10px;color:var(--muted);border-top:1px solid rgba(46,43,38,.3)}
+.ov{position:fixed;inset:0;z-index:99;display:none}.ov.open{display:block}
+.add-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(184,146,42,.13),rgba(184,146,42,.07));border:1px solid rgba(184,146,42,.35);color:var(--gold-l);border-radius:8px;padding:10px 20px;font-size:14px;letter-spacing:.5px;margin-bottom:24px}
+.add-btn:hover{background:linear-gradient(135deg,rgba(184,146,42,.2),rgba(184,146,42,.12))}
+.rc{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden}
+.rh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer;user-select:none;border-bottom:1px solid transparent;transition:border-color .2s}
+.rh.open{border-bottom:1px solid var(--border);background:rgba(184,146,42,.03)}
+.rb{padding:18px 18px 20px;display:none}.rb.open{display:block}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:bold;letter-spacing:1px}
+.bto{background:rgba(184,146,42,.13);color:var(--gold-l);border:1px solid rgba(184,146,42,.27)}
+.brem{background:rgba(192,57,43,.13);color:#e74c3c;border:1px solid rgba(192,57,43,.27)}
+.both{background:rgba(41,128,185,.13);color:#5dade2;border:1px solid rgba(41,128,185,.27)}
+.chev{color:var(--muted);font-size:18px;transition:transform .2s}.chev.open{transform:rotate(180deg)}
+.fg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:600px){.fg{grid-template-columns:1fr 1fr}}
+.fl{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;display:block}
+.fi{background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 10px;font-size:13px;width:100%;outline:none}
+.fs{background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 10px;font-size:13px;outline:none}
+.fta{background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 12px;font-size:13px;width:100%;resize:vertical;outline:none;min-height:80px;font-family:inherit}
+.sl{font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sb{width:3px;height:14px;background:var(--gold);display:inline-block;border-radius:2px}
+.tw{overflow-x:auto;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#17150f;color:var(--muted);padding:8px 10px;text-align:left;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
+th.gold{color:var(--gold-l)}td{padding:6px 6px;border-bottom:1px solid rgba(46,43,38,.13)}
+.tdi{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);padding:4px 6px;font-size:13px;width:100%;outline:none}
+.tdt{text-align:right;color:var(--gold-l);font-weight:bold;font-size:13px;padding-right:10px}
+.ib{background:none;border:none;color:var(--muted);font-size:16px;padding:2px 6px;border-radius:4px}.ib:hover{color:#e74c3c}
+.smb{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-size:11px;padding:4px 12px;margin-top:8px;letter-spacing:.5px}
+.tsum{text-align:right;margin-top:6px;font-size:12px;color:var(--muted)}.tsum span{color:var(--gold-l);font-weight:bold}
+.trow{display:flex;justify-content:flex-end;gap:24px;margin-top:8px;padding:10px 0 0;border-top:1px solid var(--border)}
+.tlbl{color:var(--muted);font-size:12px}.tval{color:var(--gold-l);font-weight:bold;font-size:14px}
+.svbtn{background:linear-gradient(135deg,var(--gold),var(--gold-l));border:none;border-radius:7px;color:#0f0d0a;font-weight:bold;font-size:13px;padding:9px 22px;margin-top:16px;letter-spacing:.5px}
+.dlbtn{background:none;border:1px solid rgba(192,57,43,.27);border-radius:7px;color:rgba(231,76,60,.55);font-size:12px;padding:9px 18px;margin-top:16px;margin-left:10px;letter-spacing:.5px}
+.dlbtn:hover{color:#e74c3c;border-color:rgba(192,57,43,.6)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gold);color:#0f0d0a;font-weight:bold;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;box-shadow:0 4px 20px rgba(184,146,42,.4);opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.empty{text-align:center;padding:48px 24px;color:var(--muted);border-top:1px solid var(--border)}
+.loading{text-align:center;padding:60px 24px;color:var(--muted)}
+.spin{display:inline-block;width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;margin-bottom:12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="sbar" class="sync-bar">&#9679; Подключение...</div>
+<div class="header">
+  <div class="ha"></div>
+  <div style="font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Сервисный журнал</div>
+  <div class="car-title">Volvo S60 &middot; 2004</div>
+  <div class="car-sub">Техническое обслуживание и ремонт</div>
+  <div class="car-grid">
+    <div class="cf"><div class="cl">VIN</div><div class="cv" style="font-family:monospace;font-size:13px;letter-spacing:1px">YV1RS61S942356411</div></div>
+    <div class="cf"><div class="cl">Двигатель</div><div class="cv">B5244S</div></div>
+    <div class="cf"><div class="cl">Цвет кузова</div><div class="cv"><span class="cdot"></span>446-46 Maya Gold Metallic</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Золотисто-бронзовый металлик</div></div>
+    <div class="cf tf" id="totf" style="display:none"><div class="cl">Вложено всего</div><div class="cv" id="tots"></div></div>
+  </div>
+</div>
+<div class="main">
+  <div id="loading" class="loading"><div class="spin"></div><div>Загрузка данных...</div></div>
+  <div id="app" style="display:none">
+    <div class="toolbar">
+      <div class="stitle" id="rcnt">Записи &middot; 0</div>
+      <div class="tbtns">
+        <div class="dd" id="dde">
+          <button class="dbtn gold" onclick="tdd('dde')">&#8595; Экспорт &#9662;</button>
+          <div class="dmenu">
+            <button class="ditem" onclick="expXLSX()">&#128202; Excel (.xlsx)</button>
+            <button class="ditem" onclick="expTXT()">&#128196; Текст (.txt)</button>
+            <button class="ditem" onclick="expPDF()">&#128424; PDF (печать)</button>
+            <button class="ditem" onclick="expJSON()">&#128190; JSON (.json)</button>
+          </div>
+        </div>
+        <div class="dd" id="ddi">
+          <button class="dbtn" onclick="tdd('ddi')">&#8593; Импорт &#9662;</button>
+          <div class="dmenu">
+            <div class="ditem"><label>&#128190; JSON (.json)<input type="file" accept=".json" style="display:none" onchange="impJSON(this)"></label></div>
+            <div class="ditem"><label>&#128202; Excel (.xlsx)<input type="file" accept=".xlsx,.xls" style="display:none" onchange="impXLSX(this)"></label></div>
+            <div class="dnote">TXT и PDF &mdash; только для чтения</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="ov" class="ov" onclick="cdd()"></div>
+    <button class="add-btn" onclick="addNew()"><span style="font-size:18px;line-height:1">+</span> Новая запись</button>
+    <div id="rlist"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const SU='https://rfzxpfwmgmzcvvdpiijl.supabase.co',SK='sb_publishable_Z8puthq7rLhFsHZdC8yZhw_lOzncTM_';
+async function sf(path,o={}){
+  const r=await fetch(SU+'/rest/v1/'+path,{headers:{'apikey':SK,'Authorization':'Bearer '+SK,'Content-Type':'application/json','Prefer':'return=representation',...(o.headers||{})},...o});
+  if(!r.ok)throw new Error(await r.text());const t=await r.text();return t?JSON.parse(t):null;
+}
+async function dbLoad(){const rows=await sf('records?select=id,data&order=id.desc');return rows.map(r=>({...r.data,_dbId:r.id}));}
+async function dbSave(rec){
+  const {_dbId,_open,_saving,_unsaved,...data}=rec;
+  if(_dbId){await sf('records?id=eq.'+_dbId,{method:'PATCH',body:JSON.stringify({data,updated_at:new Date().toISOString()})});}
+  else{const res=await sf('records',{method:'POST',body:JSON.stringify({data,updated_at:new Date().toISOString()})});return res[0].id;}
+}
+async function dbDel(id){await sf('records?id=eq.'+id,{method:'DELETE'});}
+
+let R=[],T={};
+const nP=()=>({id:Date.now()+Math.random(),name:'',brand:'',article:'',qty:1,price:''});
+const nW=()=>({id:Date.now()+Math.random(),name:'',qty:1,price:''});
+const nR=()=>({id:Date.now(),type:'TO',mileage:'',date:new Date().toISOString().slice(0,10),parts:[nP()],works:[nW()],recommendations:''});
+const sP=p=>p.reduce((s,x)=>s+(parseFloat(x.price)||0)*(parseInt(x.qty)||0),0);
+const sW=w=>w.reduce((s,x)=>s+(parseFloat(x.price)||0)*(parseInt(x.qty)||0),0);
+const fmt=n=>n>0?n.toLocaleString('ru-RU')+' \u20BD':'—';
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const gr=id=>R.find(r=>r.id===id);
+let tT;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2500);}
+function sb(m,e=false){const b=document.getElementById('sbar');b.textContent=m;b.className='sync-bar'+(e?' err':'');}
+function tdd(id){const m=document.querySelector('#'+id+' .dmenu'),ov=document.getElementById('ov'),was=m.classList.contains('open');cdd();if(!was){m.classList.add('open');ov.classList.add('open');}}
+function cdd(){document.querySelectorAll('.dmenu').forEach(m=>m.classList.remove('open'));document.getElementById('ov').classList.remove('open');}
+function srt(){return[...R].sort((a,b)=>{const ma=parseInt(a.mileage)||0,mb=parseInt(b.mileage)||0;if(mb!==ma)return mb-ma;return(b.date||'').localeCompare(a.date||'');});}
+function rAll(){
+  const tot=R.reduce((s,r)=>s+sP(r.parts)+sW(r.works),0);
+  document.getElementById('rcnt').textContent='Записи \u00B7 '+R.length;
+  const tf=document.getElementById('totf');
+  if(tot>0){tf.style.display='';document.getElementById('tots').textContent=fmt(tot);}else tf.style.display='none';
+  const l=document.getElementById('rlist');
+  if(!R.length){l.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#128295;</div><div>\u041f\u043e\u043a\u0430 \u043d\u0435\u0442 \u043d\u0438 \u043e\u0434\u043d\u043e\u0439 \u0437\u0430\u043f\u0438\u0441\u0438</div></div>';return;}
+  l.innerHTML=srt().map(r=>card(r)).join('');
+}
+function bc(t){return t==='\u0422\u041e'?'bto':t==='\u0420\u0435\u043c\u043e\u043d\u0442'?'brem':'both';}
+function card(r){
+  const tot=sP(r.parts)+sW(r.works),op=r._open||false;
+  return`<div class="rc" id="c${r.id}">
+<div class="rh${op?' open':''}" onclick="tc(${r.id})">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span class="badge ${bc(r.type)}">${r.type}</span>
+    <span style="font-size:15px;font-weight:bold;color:var(--text)">${r.mileage?parseInt(r.mileage).toLocaleString('ru-RU')+' \u043a\u043c':'— \u043a\u043c'}</span>
+    <span style="font-size:12px;color:var(--muted)">${r.date||''}</span>
+    ${r._saving?'<span style="font-size:10px;color:var(--muted)">\u25cf \u0441\u043e\u0445\u0440\u0430\u043d\u044f\u0435\u0442\u0441\u044f...</span>':''}
+    ${r._unsaved&&!r._saving?'<span style="font-size:10px;color:var(--gold)">\u25cf \u043d\u0435 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e</span>':''}
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    ${tot>0?'<span style="font-size:13px;color:var(--gold-l)">'+fmt(tot)+'</span>':''}
+    <span class="chev${op?' open':''}">&#8964;</span>
+  </div>
+</div>
+<div class="rb${op?' open':''}" id="b${r.id}">
+  <div class="fg">
+    <div><label class="fl">\u0422\u0438\u043f \u0437\u0430\u043f\u0438\u0441\u0438</label>
+      <select class="fs" onchange="upd(${r.id},'type',this.value)">
+        ${['\u0422\u041e','\u0420\u0435\u043c\u043e\u043d\u0442','\u0414\u0438\u0430\u0433\u043d\u043e\u0441\u0442\u0438\u043a\u0430','\u0428\u0438\u043d\u043e\u043c\u043e\u043d\u0442\u0430\u0436','\u041f\u0440\u043e\u0447\u0435\u0435'].map(t=>'<option'+(r.type===t?' selected':'')+'>'+t+'</option>').join('')}
+      </select></div>
+    <div><label class="fl">\u041f\u0440\u043e\u0431\u0435\u0433, \u043a\u043c</label>
+      <input class="fi" type="number" value="${esc(r.mileage)}" placeholder="227500" oninput="upd(${r.id},'mileage',this.value)"></div>
+    <div><label class="fl">\u0414\u0430\u0442\u0430</label>
+      <input class="fi" type="date" value="${r.date||''}" oninput="upd(${r.id},'date',this.value)"></div>
+  </div>
+  <div style="margin-bottom:24px">
+    <div class="sl"><span class="sb"></span>\u0417\u0430\u043f\u0447\u0430\u0441\u0442\u0438</div>
+    <div class="tw"><table>
+      <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435</th><th>\u0411\u0440\u0435\u043d\u0434</th><th>\u0410\u0440\u0442\u0438\u043a\u0443\u043b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0426\u0435\u043d\u0430 \u0437\u0430 \u0448\u0442, &#8381;</th><th class="gold">\u0418\u0442\u043e\u0433\u043e, &#8381;</th><th></th></tr></thead>
+      <tbody id="pt${r.id}">${r.parts.map(p=>pr(r.id,p)).join('')}</tbody>
+    </table></div>
+    <button class="smb" onclick="aP(${r.id})">+ \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0437\u0430\u043f\u0447\u0430\u0441\u0442\u044c</button>
+    <div class="tsum" id="ps${r.id}">\u0418\u0442\u043e\u0433\u043e: <span>${fmt(sP(r.parts))}</span></div>
+  </div>
+  <div style="margin-bottom:24px">
+    <div class="sl"><span class="sb"></span>\u0420\u0430\u0431\u043e\u0442\u044b</div>
+    <div class="tw"><table>
+      <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b</th><th>\u041a\u043e\u043b-\u0432\u043e / \u0447</th><th>\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c, &#8381;</th><th></th></tr></thead>
+      <tbody id="wt${r.id}">${r.works.map(w=>wr(r.id,w)).join('')}</tbody>
+    </table></div>
+    <button class="smb" onclick="aW(${r.id})">+ \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0440\u0430\u0431\u043e\u0442\u0443</button>
+    <div class="tsum" id="ws${r.id}">\u0418\u0442\u043e\u0433\u043e: <span>${fmt(sW(r.works))}</span></div>
+  </div>
+  ${tot>0?'<div class="trow"><div><span class="tlbl">\u0417\u0430\u043f\u0447\u0430\u0441\u0442\u0438: </span><span class="tval">'+fmt(sP(r.parts))+'</span></div><div><span class="tlbl">\u0420\u0430\u0431\u043e\u0442\u044b: </span><span class="tval">'+fmt(sW(r.works))+'</span></div><div><span class="tlbl" style="color:var(--text)">\u0418\u0442\u043e\u0433\u043e: </span><span class="tval" style="font-size:16px">'+fmt(tot)+'</span></div></div>':''}
+  <div style="margin-top:20px">
+    <label class="fl">\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0430\u0446\u0438\u0438 / \u0437\u0430\u043c\u0435\u0442\u043a\u0438</label>
+    <textarea class="fta" placeholder="\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u0442\u0441\u044f \u0437\u0430\u043c\u0435\u043d\u0438\u0442\u044c..." oninput="upd(${r.id},'recommendations',this.value)">${esc(r.recommendations)}</textarea>
+  </div>
+  <div>
+    <button class="svbtn" onclick="mSave(${r.id})">\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c</button>
+    <button class="dlbtn" onclick="dRec(${r.id})">\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0437\u0430\u043f\u0438\u0441\u044c</button>
+  </div>
+</div></div>`;
+}
+function pr(rid,p){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
+  return`<tr id="pr${p.id}"><td style="min-width:160px"><input class="tdi" value="${esc(p.name)}" placeholder="\u0424\u0438\u043b\u044c\u0442\u0440..." oninput="uP(${rid},'${p.id}','name',this.value)"></td><td style="min-width:100px"><input class="tdi" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td><td style="min-width:110px"><input class="tdi" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td><td style="min-width:60px"><input class="tdi" type="number" style="text-align:center" value="${p.qty||1}" oninput="uP(${rid},'${p.id}','qty',this.value)"></td><td style="min-width:90px"><input class="tdi" type="number" style="text-align:right" value="${esc(p.price)}" placeholder="0" oninput="uP(${rid},'${p.id}','price',this.value)"></td><td class="tdt" id="ptot${p.id}" style="min-width:90px">${tot>0?tot.toLocaleString('ru-RU'):'—'}</td><td><button class="ib" onclick="rP(${rid},'${p.id}')">&#10005;</button></td></tr>`;}
+function wr(rid,w){
+  return`<tr id="wr${w.id}"><td style="min-width:200px"><input class="tdi" value="${esc(w.name)}" placeholder="\u0417\u0430\u043c\u0435\u043d\u0430 \u043c\u0430\u0441\u043b\u0430..." oninput="uW(${rid},'${w.id}','name',this.value)"></td><td style="min-width:80px"><input class="tdi" type="number" style="text-align:center" value="${w.qty||1}" oninput="uW(${rid},'${w.id}','qty',this.value)"></td><td style="min-width:100px"><input class="tdi" type="number" style="text-align:right" value="${esc(w.price)}" placeholder="0" oninput="uW(${rid},'${w.id}','price',this.value)"></td><td><button class="ib" onclick="rW(${rid},'${w.id}')">&#10005;</button></td></tr>`;}
+function tc(id){const r=gr(id);if(!r)return;r._open=!r._open;rAll();}
+function upd(id,f,v){const r=gr(id);if(!r)return;r[f]=v;r._unsaved=true;sch(id);uG();}
+function uP(rid,pid,f,v){const r=gr(rid);if(!r)return;const p=r.parts.find(x=>String(x.id)===String(pid));if(!p)return;p[f]=v;r._unsaved=true;if(f==='price'||f==='qty'){const t=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);const el=document.getElementById('ptot'+pid);if(el)el.textContent=t>0?t.toLocaleString('ru-RU'):'—';const se=document.querySelector('#ps'+rid+' span');if(se)se.textContent=fmt(sP(r.parts));}sch(rid);uG();}
+function uW(rid,wid,f,v){const r=gr(rid);if(!r)return;const w=r.works.find(x=>String(x.id)===String(wid));if(!w)return;w[f]=v;r._unsaved=true;if(f==='price'||f==='qty'){const se=document.querySelector('#ws'+rid+' span');if(se)se.textContent=fmt(sW(r.works));}sch(rid);uG();}
+function uG(){const t=R.reduce((s,r)=>s+sP(r.parts)+sW(r.works),0);const tf=document.getElementById('totf');if(t>0){tf.style.display='';document.getElementById('tots').textContent=fmt(t);}else tf.style.display='none';}
+function aP(rid){const r=gr(rid);if(!r)return;const p=nP();r.parts.push(p);r._unsaved=true;const tb=document.getElementById('pt'+rid);if(tb)tb.insertAdjacentHTML('beforeend',pr(rid,p));sch(rid);}
+function rP(rid,pid){const r=gr(rid);if(!r)return;r.parts=r.parts.filter(p=>String(p.id)!==String(pid));r._unsaved=true;const el=document.getElementById('pr'+pid);if(el)el.remove();const se=document.querySelector('#ps'+rid+' span');if(se)se.textContent=fmt(sP(r.parts));sch(rid);uG();}
+function aW(rid){const r=gr(rid);if(!r)return;const w=nW();r.works.push(w);r._unsaved=true;const tb=document.getElementById('wt'+rid);if(tb)tb.insertAdjacentHTML('beforeend',wr(rid,w));sch(rid);}
+function rW(rid,wid){const r=gr(rid);if(!r)return;r.works=r.works.filter(w=>String(w.id)!==String(wid));r._unsaved=true;const el=document.getElementById('wr'+wid);if(el)el.remove();sch(rid);uG();}
+function sch(id){clearTimeout(T[id]);const r=gr(id);if(r)r._saving=true;T[id]=setTimeout(()=>persist(id),900);}
+async function persist(id){const r=gr(id);if(!r)return;try{sb('\u25cf \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435...');const ni=await dbSave(r);if(ni)r._dbId=ni;r._unsaved=false;r._saving=false;sb('\u25cf \u0421\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u2713');toast('\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e \u2713');}catch(e){r._saving=false;sb('\u25cf \u041e\u0448\u0438\u0431\u043a\u0430: '+e.message,true);toast('\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f!');}}
+async function mSave(id){clearTimeout(T[id]);await persist(id);}
+function addNew(){const r=nR();r._open=true;r._unsaved=true;R.unshift(r);rAll();sch(r.id);}
+async function dRec(id){if(!confirm('\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u044d\u0442\u0443 \u0437\u0430\u043f\u0438\u0441\u044c?'))return;const r=gr(id);try{if(r&&r._dbId)await dbDel(r._dbId);R=R.filter(x=>x.id!==id);rAll();toast('\u0417\u0430\u043f\u0438\u0441\u044c \u0443\u0434\u0430\u043b\u0435\u043d\u0430');}catch(e){toast('\u041e\u0448\u0438\u0431\u043a\u0430 \u0443\u0434\u0430\u043b\u0435\u043d\u0438\u044f');}}
+
+const ds=()=>new Date().toISOString().slice(0,10);
+const bn=()=>'volvo_s60_journal_'+ds();
+const sr=()=>[...R].sort((a,b)=>(parseInt(b.mileage)||0)-(parseInt(a.mileage)||0));
+function dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
+function expJSON(){cdd();dl(new Blob([JSON.stringify({exportedAt:new Date().toISOString(),records:R},null,2)],{type:'application/json'}),bn()+'.json');toast('JSON \u044d\u043a\u0441\u043f\u043e\u0440\u0442 \u2713');}
+function expTXT(){
+  cdd();const L='\u2500'.repeat(60);
+  let o=`\u0421\u0415\u0420\u0412\u0418\u0421\u041d\u042b\u0419 \u0416\u0423\u0420\u041d\u0410\u041b \u2014 VOLVO S60 2004\n${L}\nVIN: YV1RS61S942356411  |  \u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c: B5244S\n${L}\n\n`;
+  sr().forEach(r=>{
+    o+=`${r.type}  |  ${parseInt(r.mileage)||'???'} \u043a\u043c  |  ${r.date}\n${'\u2550'.repeat(60)}\n`;
+    if(r.parts.some(p=>p.name)){o+=`\u0417\u0410\u041f\u0427\u0410\u0421\u0422\u0418:\n${'-'.repeat(78)}\n`;r.parts.filter(p=>p.name).forEach(p=>{const t=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);o+=`${(p.name||'').padEnd(26)}${(p.brand||'').padEnd(13)}${(p.article||'').padEnd(15)}${String(p.qty).padEnd(5)}${String(parseFloat(p.price)||0).padEnd(11)}${t} \u20BD\n`;});o+=`${' '.repeat(64)}\u0418\u0442\u043e\u0433\u043e: ${sP(r.parts)} \u20BD\n\n`;}
+    if(r.works.some(w=>w.name)){o+=`\u0420\u0410\u0411\u041e\u0422\u042b:\n${'-'.repeat(60)}\n`;r.works.filter(w=>w.name).forEach(w=>{o+=`${(w.name||'').padEnd(42)}${String(w.qty).padEnd(5)}${(parseFloat(w.price)||0)*(parseInt(w.qty)||0)} \u20BD\n`;});o+=`${' '.repeat(48)}\u0418\u0442\u043e\u0433\u043e: ${sW(r.works)} \u20BD\n\n`;}
+    const t=sP(r.parts)+sW(r.works);if(t>0)o+=`\u0418\u0422\u041e\u0413\u041e: ${t} \u20BD\n`;if(r.recommendations)o+=`\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0430\u0446\u0438\u0438: ${r.recommendations}\n`;o+='\n';
+  });
+  o+=`${L}\n\u0412\u0421\u0415\u0413\u041e \u0412\u041b\u041e\u0416\u0415\u041d\u041e: ${R.reduce((s,r)=>s+sP(r.parts)+sW(r.works),0)} \u20BD\n`;
+  dl(new Blob([o],{type:'text/plain;charset=utf-8'}),bn()+'.txt');toast('TXT \u044d\u043a\u0441\u043f\u043e\u0440\u0442 \u2713');
+}
+function expXLSX(){
+  cdd();const wb=XLSX.utils.book_new();
+  const rows=[['\u0421\u0435\u0440\u0432\u0438\u0441\u043d\u044b\u0439 \u0436\u0443\u0440\u043d\u0430\u043b \u2014 Volvo S60 2004'],['\u0412\u0418\u041d:','YV1RS61S942356411','','\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c:','B5244S'],['\u0426\u0432\u0435\u0442:','446-46 Maya Gold Metallic'],[],['\u0414\u0430\u0442\u0430','\u0422\u0438\u043f','\u041f\u0440\u043e\u0431\u0435\u0433, \u043a\u043c','\u0417\u0430\u043f\u0447\u0430\u0441\u0442\u0438, \u20BD','\u0420\u0430\u0431\u043e\u0442\u044b, \u20BD','\u0418\u0442\u043e\u0433\u043e, \u20BD','\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0430\u0446\u0438\u0438']];
+  sr().forEach(r=>rows.push([r.date,r.type,parseInt(r.mileage)||0,sP(r.parts),sW(r.works),sP(r.parts)+sW(r.works),r.recommendations||'']));
+  rows.push([],[,'','','','\u0412\u0441\u0435\u0433\u043e \u0432\u043b\u043e\u0436\u0435\u043d\u043e:',R.reduce((s,r)=>s+sP(r.parts)+sW(r.works),0)]);
+  const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[14,12,14,14,14,14,40].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,'\u0421\u0432\u043e\u0434\u043a\u0430');
+  sr().forEach(r=>{
+    const lbl=`${r.date}_${parseInt(r.mileage)||0}km`.replace(/[:\\/?*\[\]]/g,'_').slice(0,31);
+    const rr=[[`${r.type} \u2014 ${parseInt(r.mileage)||'??'} \u043a\u043c \u2014 ${r.date}`],[],['\u0417\u0410\u041f\u0427\u0410\u0421\u0422\u0418'],['\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435','\u0411\u0440\u0435\u043d\u0434','\u0410\u0440\u0442\u0438\u043a\u0443\u043b','\u041a\u043e\u043b-\u0432\u043e','\u0426\u0435\u043d\u0430 \u0437\u0430 \u0448\u0442, \u20BD','\u0418\u0442\u043e\u0433\u043e, \u20BD']];
+    r.parts.forEach(p=>rr.push([p.name,p.brand,p.article,parseInt(p.qty)||1,parseFloat(p.price)||0,(parseFloat(p.price)||0)*(parseInt(p.qty)||0)]));
+    rr.push(['','','','','\u0418\u0442\u043e\u0433\u043e \u0437\u0430\u043f\u0447\u0430\u0441\u0442\u0438:',sP(r.parts)],[],['\u0420\u0410\u0411\u041e\u0422\u042b'],['\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b','\u041a\u043e\u043b-\u0432\u043e','\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c, \u20BD']);
+    r.works.forEach(w=>rr.push([w.name,parseInt(w.qty)||1,parseFloat(w.price)||0]));
+    rr.push(['','\u0418\u0442\u043e\u0433\u043e \u0440\u0430\u0431\u043e\u0442\u044b:',sW(r.works)],[],['\u0418\u0422\u041e\u0413\u041e:',sP(r.parts)+sW(r.works)]);
+    if(r.recommendations)rr.push([],['\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0430\u0446\u0438\u0438:',r.recommendations]);
+    const ws2=XLSX.utils.aoa_to_sheet(rr);ws2['!cols']=[30,14,14,10,16,14].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws2,lbl);
+  });
+  XLSX.writeFile(wb,bn()+'.xlsx');toast('Excel \u044d\u043a\u0441\u043f\u043e\u0440\u0442 \u2713');
+}
+function expPDF(){
+  cdd();
+  const h=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Volvo S60</title><style>body{font-family:Arial,sans-serif;font-size:12px;color:#222;margin:30px}h1{font-size:18px;margin-bottom:4px}.sub{color:#777;font-size:11px;margin-bottom:16px}.ci{display:inline-block;margin-right:24px}.ci label{font-size:9px;text-transform:uppercase;color:#999;display:block}.ci span{font-weight:bold}.rec{margin-bottom:28px;page-break-inside:avoid}.rt{background:#1a1816;color:#D4A843;padding:8px 12px;font-weight:bold;font-size:13px;border-radius:4px 4px 0 0}table{width:100%;border-collapse:collapse;margin-bottom:8px}th{background:#eee;padding:5px 8px;text-align:left;font-size:10px;text-transform:uppercase;color:#555}td{padding:5px 8px;border-bottom:1px solid #eee;font-size:11px}.sl{font-size:10px;font-weight:bold;color:#B8922A;text-transform:uppercase;margin:10px 0 4px}.tr{text-align:right;font-weight:bold;color:#B8922A;padding:4px 8px}.gt{text-align:right;font-size:14px;font-weight:bold;margin-top:6px}.reco{background:#fffbe6;border-left:3px solid #D4A843;padding:6px 10px;font-size:11px;margin-top:8px}.st{margin-top:32px;text-align:right;font-size:13px;font-weight:bold;border-top:2px solid #222;padding-top:8px}</style></head><body>
+  <h1>\u0421\u0435\u0440\u0432\u0438\u0441\u043d\u044b\u0439 \u0436\u0443\u0440\u043d\u0430\u043b &mdash; Volvo S60 2004</h1><div class="sub">\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u043e\u0435 \u043e\u0431\u0441\u043b\u0443\u0436\u0438\u0432\u0430\u043d\u0438\u0435 \u0438 \u0440\u0435\u043c\u043e\u043d\u0442</div>
+  <div style="background:#f5f5f5;padding:10px 14px;border-radius:6px;margin-bottom:24px"><div class="ci"><label>VIN</label><span>YV1RS61S942356411</span></div><div class="ci"><label>\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c</label><span>B5244S</span></div></div>
+  ${sr().map(r=>`<div class="rec"><div class="rt">${r.type} &middot; ${parseInt(r.mileage)||'??'} \u043a\u043c &middot; ${r.date}</div>
+  ${r.parts.some(p=>p.name)?`<div class="sl">\u0417\u0430\u043f\u0447\u0430\u0441\u0442\u0438</div><table><thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435</th><th>\u0411\u0440\u0435\u043d\u0434</th><th>\u0410\u0440\u0442\u0438\u043a\u0443\u043b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0426\u0435\u043d\u0430 \u0437\u0430 \u0448\u0442</th><th>\u0418\u0442\u043e\u0433\u043e</th></tr></thead><tbody>${r.parts.filter(p=>p.name).map(p=>`<tr><td>${p.name}</td><td>${p.brand||''}</td><td>${p.article||''}</td><td>${p.qty}</td><td>${parseFloat(p.price)||0} \u20BD</td><td>${(parseFloat(p.price)||0)*(parseInt(p.qty)||0)} \u20BD</td></tr>`).join('')}</tbody></table><div class="tr">\u0418\u0442\u043e\u0433\u043e \u0437\u0430\u043f\u0447\u0430\u0441\u0442\u0438: ${sP(r.parts).toLocaleString('ru-RU')} \u20BD</div>`:''}
+  ${r.works.some(w=>w.name)?`<div class="sl">\u0420\u0430\u0431\u043e\u0442\u044b</div><table><thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c</th></tr></thead><tbody>${r.works.filter(w=>w.name).map(w=>`<tr><td>${w.name}</td><td>${w.qty}</td><td>${(parseFloat(w.price)||0)*(parseInt(w.qty)||0)} \u20BD</td></tr>`).join('')}</tbody></table><div class="tr">\u0418\u0442\u043e\u0433\u043e \u0440\u0430\u0431\u043e\u0442\u044b: ${sW(r.works).toLocaleString('ru-RU')} \u20BD</div>`:''}
+  <div class="gt">\u0418\u0422\u041e\u0413\u041e: ${(sP(r.parts)+sW(r.works)).toLocaleString('ru-RU')} \u20BD</div>
+  ${r.recommendations?`<div class="reco"><b>\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0430\u0446\u0438\u0438:</b> ${r.recommendations}</div>`:''}</div>`).join('')}
+  <div class="st">\u0412\u0441\u0435\u0433\u043e \u0432\u043b\u043e\u0436\u0435\u043d\u043e: ${R.reduce((s,r)=>s+sP(r.parts)+sW(r.works),0).toLocaleString('ru-RU')} \u20BD</div>
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(h);w.document.close();setTimeout(()=>{w.focus();w.print();},600);
+  toast('PDF \u2014 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 \u00AB\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u043a\u0430\u043a PDF\u00BB');
+}
+async function impJSON(input){cdd();const file=input.files[0];if(!file)return;try{const t=await file.text();const p=JSON.parse(t);const imp=p.records||p;sb('\u25cf \u0418\u043c\u043f\u043e\u0440\u0442...');for(const r of imp)await dbSave(r);await init();toast('\u0418\u043c\u043f\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u043e: '+imp.length+' \u0437\u0430\u043f\u0438\u0441\u0435\u0439 \u2713');}catch(e){toast('\u041e\u0448\u0438\u0431\u043a\u0430: \u0444\u0430\u0439\u043b \u043f\u043e\u0432\u0440\u0435\u0436\u0434\u0451\u043d');}input.value='';}
+async function impXLSX(input){cdd();const file=input.files[0];if(!file)return;try{const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:'array'});const ws=wb.Sheets['\u0421\u0432\u043e\u0434\u043a\u0430']||wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});const hi=rows.findIndex(r=>r[0]==='\u0414\u0430\u0442\u0430');if(hi<0){toast('\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c \u0444\u043e\u0440\u043c\u0430\u0442');return;}const imp=rows.slice(hi+1).filter(r=>r[0]&&r[1]).map((r,i)=>({id:Date.now()+i,date:r[0]||'',type:r[1]||'\u0422\u041e',mileage:String(r[2]||''),parts:[],works:[],recommendations:r[6]||''}));for(const r of imp)await dbSave(r);await init();toast('\u0418\u043c\u043f\u043e\u0440\u0442 Excel: '+imp.length+' \u0437\u0430\u043f\u0438\u0441\u0435\u0439 \u2713');}catch(e){toast('\u041e\u0448\u0438\u0431\u043a\u0430 \u0447\u0442\u0435\u043d\u0438\u044f Excel');}input.value='';}
+
+async function init(){
+  try{R=await dbLoad();sb('\u25cf \u0421\u0438\u043d\u0445\u0440\u043e\u043d\u0438\u0437\u0438\u0440\u043e\u0432\u0430\u043d\u043e \u2713');document.getElementById('loading').style.display='none';document.getElementById('app').style.display='block';rAll();}
+  catch(e){sb('\u25cf \u041e\u0448\u0438\u0431\u043a\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f: '+e.message,true);document.getElementById('loading').innerHTML='<div style="color:#e74c3c;text-align:center;padding:40px">\u041e\u0448\u0438\u0431\u043a\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f \u043a \u0431\u0430\u0437\u0435 \u0434\u0430\u043d\u043d\u044b\u0445.<br><small>'+e.message+'</small></div>';}
+}
+init();
+</script>
+</body>
+</html>
