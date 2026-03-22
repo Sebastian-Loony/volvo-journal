@@ -247,16 +247,11 @@ td{padding:5px 5px;border-bottom:1px solid var(--border)22}
 
 /* ═══════════ PC TWEAKS ═══════════ */
 @media(min-width:768px){
-  .bottom-nav{display:none}
-  body{padding-bottom:40px}
-  .toast{bottom:24px}
+  body{padding-bottom:72px}
   .dashboard{padding:32px clamp(24px,4vw,48px) 28px}
   .main{padding:24px clamp(24px,4vw,48px) 0}
-  .pc-toolbar{display:flex;gap:10px;align-items:center}
-  .settings-btn-pc{display:inline-flex!important}
-}
-@media(max-width:767px){
-  .settings-btn-pc{display:none!important}
+  .bottom-nav{max-width:100%;justify-content:center;gap:0}
+  .bnav-btn{max-width:160px}
 }
 
 </style>
@@ -276,8 +271,7 @@ td{padding:5px 5px;border-bottom:1px solid var(--border)22}
       <div class="car-year" id="d-caryear">2004 &nbsp;&middot;&nbsp; <span id="d-engine">B5244S</span></div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
-      <button class="dbtn settings-btn-pc" onclick="openSettings()" style="display:none" title="Настройки">&#9881; Настройки</button>
-      <button class="dbtn" onclick="openSettings()" style="height:fit-content" title="Настройки">&#9881;</button>
+      <button class="dbtn" onclick="openCarSettings()" style="height:fit-content;font-size:16px;padding:6px 10px" title="Данные автомобиля">&#9881;</button>
     </div>
   </div>
 
@@ -348,11 +342,45 @@ td{padding:5px 5px;border-bottom:1px solid var(--border)22}
   </div>
 </div>
 
-<!-- SETTINGS MODAL -->
+<!-- MODAL: ДАННЫЕ АВТО (шестерня вверху) -->
+<div class="modal-overlay" id="car-settings-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">&#9881; Данные автомобиля</div>
+      <button class="modal-close" onclick="closeCarSettings()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-section">
+        <div class="settings-row">
+          <div><label class="slabel">Марка</label><input class="sf" id="s-make" placeholder="Volvo"></div>
+          <div><label class="slabel">Модель</label><input class="sf" id="s-model" placeholder="S60"></div>
+        </div>
+        <div class="settings-row">
+          <div><label class="slabel">Год выпуска</label><input class="sf" id="s-year" placeholder="2004"></div>
+          <div><label class="slabel">Гос. номер</label><input class="sf" id="s-plate" placeholder="А123БВ 77"></div>
+        </div>
+        <div class="settings-row full">
+          <div><label class="slabel">VIN</label><input class="sf" id="s-vin" placeholder="YV1RS61S942356411"></div>
+        </div>
+        <div class="settings-row">
+          <div><label class="slabel">Двигатель</label><input class="sf" id="s-engine" placeholder="B5244S"></div>
+          <div><label class="slabel">Коробка передач</label><input class="sf" id="s-gearbox" placeholder="МКПП / АКПП / 5MT"></div>
+        </div>
+        <div class="settings-row">
+          <div><label class="slabel">Цвет</label><input class="sf" id="s-color" placeholder="Maya Gold Metallic"></div>
+          <div><label class="slabel">Код цвета</label><input class="sf" id="s-colorcode" placeholder="446-46"></div>
+        </div>
+      </div>
+      <button class="save-settings-btn" onclick="saveCarSettings()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: СИСТЕМНЫЕ НАСТРОЙКИ (ползунки внизу) -->
 <div class="modal-overlay" id="settings-modal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">&#9881; Настройки</div>
+      <div class="modal-title">&#9776; Настройки</div>
       <button class="modal-close" onclick="closeSettings()">&#10005;</button>
     </div>
     <div class="modal-body">
@@ -376,29 +404,6 @@ td{padding:5px 5px;border-bottom:1px solid var(--border)22}
         </div>
       </div>
 
-      <!-- Данные авто -->
-      <div class="settings-section">
-        <div class="settings-section-title">&#128663; Данные автомобиля</div>
-        <div class="settings-row">
-          <div><label class="slabel">Марка</label><input class="sf" id="s-make" placeholder="Volvo"></div>
-          <div><label class="slabel">Модель</label><input class="sf" id="s-model" placeholder="S60"></div>
-        </div>
-        <div class="settings-row">
-          <div><label class="slabel">Год выпуска</label><input class="sf" id="s-year" placeholder="2004"></div>
-          <div><label class="slabel">Гос. номер</label><input class="sf" id="s-plate" placeholder="А123БВ 77"></div>
-        </div>
-        <div class="settings-row full">
-          <div><label class="slabel">VIN</label><input class="sf" id="s-vin" placeholder="YV1RS61S942356411"></div>
-        </div>
-        <div class="settings-row">
-          <div><label class="slabel">Двигатель</label><input class="sf" id="s-engine" placeholder="B5244S"></div>
-          <div><label class="slabel">Цвет</label><input class="sf" id="s-color" placeholder="Maya Gold Metallic"></div>
-        </div>
-        <div class="settings-row full">
-          <div><label class="slabel">Код цвета</label><input class="sf" id="s-colorcode" placeholder="446-46"></div>
-        </div>
-      </div>
-
       <!-- ТО и страховка -->
       <div class="settings-section">
         <div class="settings-section-title">&#128295; Обслуживание и страховка</div>
@@ -410,7 +415,7 @@ td{padding:5px 5px;border-bottom:1px solid var(--border)22}
 
       <!-- Период расходов -->
       <div class="settings-section">
-        <div class="settings-section-title">&#128200; Период расходов на Dashboard</div>
+        <div class="settings-section-title">&#128200; Период расходов</div>
         <div class="period-picker" id="period-picker">
           <button class="period-opt" data-p="calendar" onclick="setPeriod('calendar')">Календарный год</button>
           <button class="period-opt" data-p="1" onclick="setPeriod('1')">1 месяц</button>
@@ -420,21 +425,26 @@ td{padding:5px 5px;border-bottom:1px solid var(--border)22}
         </div>
       </div>
 
-      <button class="save-settings-btn" onclick="saveSettings()">Сохранить настройки</button>
+      <button class="save-settings-btn" onclick="saveSettings()">Сохранить</button>
     </div>
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- BOTTOM NAV — одинаковая для ПК и мобильного -->
 <div class="bottom-nav">
   <button class="bnav-btn active" onclick="scrollToTop()">
     <span class="bnav-icon">&#127968;</span>Главная
   </button>
   <button class="bnav-btn" onclick="addNew();scrollToRecords()">
-    <span class="bnav-icon">&#43;</span>Запись
+    <span class="bnav-icon" style="font-size:22px;font-weight:300">+</span>Запись
   </button>
   <button class="bnav-btn" onclick="openSettings()">
-    <span class="bnav-icon">&#9881;</span>Настройки
+    <span class="bnav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+        <circle cx="8" cy="6" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="2" fill="currentColor" stroke="none"/>
+      </svg>
+    </span>Настройки
   </button>
 </div>
 
@@ -460,7 +470,7 @@ async function dbDel(id){await sf('records?id=eq.'+id,{method:'DELETE'});}
 let R=[],T={};
 let CFG={
   make:'Volvo',model:'S60',year:'2004',plate:'',vin:'YV1RS61S942356411',
-  engine:'B5244S',color:'Maya Gold Metallic',colorcode:'446-46',
+  engine:'B5244S',gearbox:'',color:'Maya Gold Metallic',colorcode:'446-46',
   osago:'',toInterval:10000,period:'calendar',theme:'dark'
 };
 
@@ -485,7 +495,8 @@ function loadCFG(){
 function saveCFGLocal(){
   localStorage.setItem('vj_cfg',JSON.stringify(CFG));
 }
-function openSettings(){
+// ── CAR SETTINGS (шестерня вверху) ───────────────────────────────
+function openCarSettings(){
   cdd();
   document.getElementById('s-make').value=CFG.make||'';
   document.getElementById('s-model').value=CFG.model||'';
@@ -493,10 +504,31 @@ function openSettings(){
   document.getElementById('s-plate').value=CFG.plate||'';
   document.getElementById('s-vin').value=CFG.vin||'';
   document.getElementById('s-engine').value=CFG.engine||'';
+  document.getElementById('s-gearbox').value=CFG.gearbox||'';
   document.getElementById('s-color').value=CFG.color||'';
   document.getElementById('s-colorcode').value=CFG.colorcode||'';
-  document.getElementById('s-osago').value=CFG.osago||'';
+  document.getElementById('car-settings-modal').classList.add('open');
+}
+function closeCarSettings(){document.getElementById('car-settings-modal').classList.remove('open');}
+function saveCarSettings(){
+  CFG.make=document.getElementById('s-make').value.trim()||'Volvo';
+  CFG.model=document.getElementById('s-model').value.trim()||'S60';
+  CFG.year=document.getElementById('s-year').value.trim()||'2004';
+  CFG.plate=document.getElementById('s-plate').value.trim();
+  CFG.vin=document.getElementById('s-vin').value.trim();
+  CFG.engine=document.getElementById('s-engine').value.trim();
+  CFG.gearbox=document.getElementById('s-gearbox').value.trim();
+  CFG.color=document.getElementById('s-color').value.trim();
+  CFG.colorcode=document.getElementById('s-colorcode').value.trim();
+  saveCFGLocal();closeCarSettings();renderDash();
+  toast('\u0414\u0430\u043d\u043d\u044b\u0435 \u0430\u0432\u0442\u043e \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u044b \u2713');
+}
+
+// ── SYSTEM SETTINGS (ползунки внизу) ─────────────────────────────
+function openSettings(){
+  cdd();
   document.getElementById('s-toint').value=CFG.toInterval||10000;
+  document.getElementById('s-osago').value=CFG.osago||'';
   document.querySelectorAll('.theme-opt').forEach(el=>el.classList.remove('active'));
   const th=document.getElementById('th-'+CFG.theme);if(th)th.classList.add('active');
   document.querySelectorAll('.period-opt').forEach(el=>el.classList.toggle('active',el.dataset.p===String(CFG.period)));
@@ -514,19 +546,9 @@ function setPeriod(p){
   document.querySelectorAll('.period-opt').forEach(el=>el.classList.toggle('active',el.dataset.p===String(p)));
 }
 function saveSettings(){
-  CFG.make=document.getElementById('s-make').value.trim()||'Volvo';
-  CFG.model=document.getElementById('s-model').value.trim()||'S60';
-  CFG.year=document.getElementById('s-year').value.trim()||'2004';
-  CFG.plate=document.getElementById('s-plate').value.trim();
-  CFG.vin=document.getElementById('s-vin').value.trim();
-  CFG.engine=document.getElementById('s-engine').value.trim();
-  CFG.color=document.getElementById('s-color').value.trim();
-  CFG.colorcode=document.getElementById('s-colorcode').value.trim();
-  CFG.osago=document.getElementById('s-osago').value;
   CFG.toInterval=parseInt(document.getElementById('s-toint').value)||10000;
-  saveCFGLocal();
-  closeSettings();
-  renderDash();
+  CFG.osago=document.getElementById('s-osago').value;
+  saveCFGLocal();closeSettings();renderDash();
   toast('\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u044b \u2713');
 }
 
@@ -554,6 +576,7 @@ function renderDash(){
     {l:'VIN',v:CFG.vin,mono:true},
     {l:'\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043b\u044c',v:CFG.engine},
     {l:'\u0426\u0432\u0435\u0442 \u043a\u0443\u0437\u043e\u0432\u0430',v:(CFG.colorcode?CFG.colorcode+' ':'')+CFG.color},
+    {l:'\u041a\u043e\u0440\u043e\u0431\u043a\u0430 \u043f\u0435\u0440\u0435\u0434\u0430\u0447',v:CFG.gearbox},
     ...(CFG.plate?[{l:'\u0413\u043e\u0441. \u043d\u043e\u043c\u0435\u0440',v:CFG.plate}]:[]),
   ];
   fields.forEach(f=>{
