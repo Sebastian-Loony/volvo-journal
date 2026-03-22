@@ -192,10 +192,12 @@ td:nth-child(n+2) .tdi{text-align:center}
 .ib{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 4px;border-radius:4px;min-width:26px;min-height:26px;display:block}
 .ib:hover{color:#e74c3c}
 
-/* ПК — широкая колонка наименования, текст в одну строку */
+/* ПК — авто layout, наименование широкое, остальные по содержимому */
 @media(min-width:768px){
-  table{table-layout:fixed}
-  td:first-child,th:first-child{width:30%;min-width:240px}
+  table{table-layout:auto}
+  td:first-child,th:first-child{min-width:220px;width:28%}
+  td:nth-child(2),th:nth-child(2){white-space:normal;word-break:break-word;min-width:90px}
+  td:nth-child(3),th:nth-child(3){white-space:normal;word-break:break-word;min-width:90px}
   .tdi-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tdi-name:focus{white-space:pre-wrap;overflow:visible;text-overflow:unset;height:auto}
 }
@@ -224,11 +226,7 @@ td:nth-child(n+2) .tdi{text-align:center}
   td:nth-child(4) .tdi{text-align:center}
   td:nth-child(5) .tdi{text-align:center}
 }
-/* ПК — бренд и артикул авто по ширине содержимого */
-@media(min-width:768px){
-  td:nth-child(2),th:nth-child(2){white-space:normal;word-break:break-word;min-width:80px}
-  td:nth-child(3),th:nth-child(3){white-space:normal;word-break:break-word;min-width:85px}
-}
+
 .smb{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 14px;margin-top:6px;letter-spacing:.3px}
 .smb:hover{border-color:var(--gold);color:var(--gold-l)}
 .tsum{text-align:right;margin-top:5px;font-size:12px;font-weight:400;color:var(--muted)}.tsum span{color:var(--gold-l);font-weight:700}
