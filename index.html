@@ -259,6 +259,14 @@ td:nth-child(5) .tdi,td:nth-child(6) .tdt{text-align:center}
 tr.hl-row td{background:rgba(212,168,67,0.08);border-bottom-color:rgba(212,168,67,0.2)}
 tr.hl-row td:first-child{border-left:2px solid var(--gold)}
 
+/* ═══════════ AUTOCOMPLETE ═══════════ */
+.ac-wrap{position:relative;width:100%}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--gold)55;border-radius:8px;box-shadow:0 8px 24px var(--shadow);z-index:200;max-height:200px;overflow-y:auto;margin-top:2px}
+.ac-item{padding:8px 12px;font-size:12px;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border)44;line-height:1.3}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.active{background:var(--accent-bg);color:var(--gold-l)}
+.ac-item-sub{font-size:10px;color:var(--muted);margin-top:2px}
+
 /* ═══════════ EMPTY ═══════════ */
 .empty{text-align:center;padding:48px 24px;color:var(--muted);border-top:1px solid var(--border)}
 
@@ -903,9 +911,15 @@ function autoH(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
 function pr(rid,p,q=''){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
   const rowHl=q&&[(p.name||''),(p.brand||''),(p.article||'')].some(v=>v.toLowerCase().includes(q.toLowerCase()));
   return`<tr id="pr${p.id}"${rowHl?' class="hl-row"':''}>
-    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435..." oninput="uP(${rid},'${p.id}','name',this.value);autoH(this)">${esc(p.name)}</textarea></td>
-    <td><input class="tdi" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
-    <td><input class="tdi" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td>
+    <td><div class="ac-wrap">
+      <textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435..." id="pn${p.id}"
+        oninput="uP(${rid},'${p.id}','name',this.value);autoH(this);acShow('part','${p.id}',this.value,${rid})"
+        onblur="setTimeout(()=>acHide('${p.id}'),200)"
+        onkeydown="acKey(event,'${p.id}')">${esc(p.name)}</textarea>
+      <div class="ac-list" id="ac${p.id}" style="display:none"></div>
+    </div></td>
+    <td><input class="tdi" id="pb${p.id}" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
+    <td><input class="tdi" id="pa${p.id}" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${p.qty||1}" oninput="uP(${rid},'${p.id}','qty',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${esc(p.price)}" placeholder="0" oninput="uP(${rid},'${p.id}','price',this.value)"></td>
     <td class="tdt" id="ptot${p.id}">${tot>0?tot.toLocaleString('ru-RU'):'—'}</td>
@@ -914,11 +928,109 @@ function pr(rid,p,q=''){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
 function wr(rid,w,q=''){
   const rowHl=q&&(w.name||'').toLowerCase().includes(q.toLowerCase());
   return`<tr id="wr${w.id}"${rowHl?' class="hl-row"':''}>
-    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b..." oninput="uW(${rid},'${w.id}','name',this.value);autoH(this)">${esc(w.name)}</textarea></td>
+    <td><div class="ac-wrap">
+      <textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b..." id="wn${w.id}"
+        oninput="uW(${rid},'${w.id}','name',this.value);autoH(this);acShow('work','${w.id}',this.value,${rid})"
+        onblur="setTimeout(()=>acHide('${w.id}'),200)"
+        onkeydown="acKey(event,'${w.id}')">${esc(w.name)}</textarea>
+      <div class="ac-list" id="ac${w.id}" style="display:none"></div>
+    </div></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${w.qty||1}" oninput="uW(${rid},'${w.id}','qty',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${esc(w.price)}" placeholder="0" oninput="uW(${rid},'${w.id}','price',this.value)"></td>
     <td><button class="ib" onclick="rW(${rid},'${w.id}')">&#10005;</button></td>
   </tr>`;}
+
+// ── AUTOCOMPLETE ──────────────────────────────────────────────────
+let acIdx=-1;
+
+function acSuggestParts(q){
+  // Собираем уникальные запчасти из всех записей
+  const map=new Map();
+  for(const r of R){
+    for(const p of r.parts||[]){
+      if(!p.name) continue;
+      const key=p.name.toLowerCase();
+      if(!map.has(key)) map.set(key,{name:p.name,brand:p.brand||'',article:p.article||'',price:p.price||''});
+    }
+  }
+  const qL=q.toLowerCase();
+  return [...map.values()].filter(x=>x.name.toLowerCase().includes(qL)&&x.name.toLowerCase()!==qL).slice(0,8);
+}
+
+function acSuggestWorks(q){
+  const set=new Map();
+  for(const r of R){
+    for(const w of r.works||[]){
+      if(!w.name) continue;
+      const key=w.name.toLowerCase();
+      if(!set.has(key)) set.set(key,{name:w.name,price:w.price||''});
+    }
+  }
+  const qL=q.toLowerCase();
+  return [...set.values()].filter(x=>x.name.toLowerCase().includes(qL)&&x.name.toLowerCase()!==qL).slice(0,8);
+}
+
+function acShow(type,pid,val,rid){
+  const list=document.getElementById('ac'+pid);
+  if(!list) return;
+  if(!val||val.length<2){list.style.display='none';return;}
+  const sugg=type==='part'?acSuggestParts(val):acSuggestWorks(val);
+  if(!sugg.length){list.style.display='none';return;}
+  acIdx=-1;
+  list.innerHTML=sugg.map((s,i)=>`
+    <div class="ac-item" data-i="${i}" onmousedown="acPick('${type}','${pid}',${i},${rid})">
+      ${esc(s.name)}
+      ${type==='part'&&(s.brand||s.article)?`<div class="ac-item-sub">${esc(s.brand)}${s.brand&&s.article?' · ':''}${esc(s.article)}</div>`:''}
+    </div>`).join('');
+  list._sugg=sugg;
+  list.style.display='block';
+}
+
+function acHide(pid){
+  const list=document.getElementById('ac'+pid);
+  if(list) list.style.display='none';
+  acIdx=-1;
+}
+
+function acPick(type,pid,idx,rid){
+  const list=document.getElementById('ac'+pid);
+  if(!list||!list._sugg) return;
+  const s=list._sugg[idx];
+  if(!s) return;
+  // Заполняем поле наименования
+  const ta=document.getElementById((type==='part'?'pn':'wn')+pid);
+  if(ta){ta.value=s.name;autoH(ta);}
+  // Обновляем данные в записи
+  if(type==='part'){
+    const r=gr(rid);if(!r)return;
+    const p=r.parts.find(x=>String(x.id)===String(pid));
+    if(p){
+      p.name=s.name;
+      if(s.brand){p.brand=s.brand;const el=document.getElementById('pb'+pid);if(el)el.value=s.brand;}
+      if(s.article){p.article=s.article;const el=document.getElementById('pa'+pid);if(el)el.value=s.article;}
+      if(s.price&&!p.price){p.price=s.price;const el=document.querySelector(`#pr${pid} input[type="number"]:nth-of-type(2)`);if(el)el.value=s.price;}
+      r._unsaved=true;sch(rid);
+    }
+  } else {
+    const r=gr(rid);if(!r)return;
+    const w=r.works.find(x=>String(x.id)===String(pid));
+    if(w){w.name=s.name;if(s.price&&!w.price)w.price=s.price;r._unsaved=true;sch(rid);}
+  }
+  list.style.display='none';acIdx=-1;
+}
+
+function acKey(e,pid){
+  const list=document.getElementById('ac'+pid);
+  if(!list||list.style.display==='none') return;
+  const items=list.querySelectorAll('.ac-item');
+  if(!items.length) return;
+  if(e.key==='ArrowDown'){e.preventDefault();acIdx=Math.min(acIdx+1,items.length-1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();acIdx=Math.max(acIdx-1,-1);}
+  else if(e.key==='Enter'&&acIdx>=0){e.preventDefault();items[acIdx].dispatchEvent(new MouseEvent('mousedown'));return;}
+  else if(e.key==='Escape'){list.style.display='none';acIdx=-1;return;}
+  items.forEach((el,i)=>el.classList.toggle('active',i===acIdx));
+  if(acIdx>=0)items[acIdx].scrollIntoView({block:'nearest'});
+}
 
 function tc(id){const r=gr(id);if(!r)return;r._open=!r._open;if(r._open)r._openedBySearch=false;rAll();}
 function upd(id,f,v){const r=gr(id);if(!r)return;r[f]=v;r._unsaved=true;sch(id);renderDash();}
