@@ -926,7 +926,7 @@ function pr(rid,p,q=''){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
         onkeydown="acKey(event,'${p.id}')">${esc(p.name)}</textarea>
       <div class="ac-list" id="ac${p.id}" style="display:none"></div>
     </div></td>
-    <td><input class="tdi tdi-brand" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
+    <td><input class="tdi tdi-brand" id="pb${p.id}" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
     <td><input class="tdi" id="pa${p.id}" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${p.qty||1}" oninput="uP(${rid},'${p.id}','qty',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${esc(p.price)}" placeholder="0" oninput="uP(${rid},'${p.id}','price',this.value)"></td>
@@ -1014,7 +1014,12 @@ function acPick(type,pid,idx,rid){
     const p=r.parts.find(x=>String(x.id)===String(pid));
     if(p){
       p.name=s.name;
-      if(s.brand){p.brand=s.brand;const el=document.getElementById('pb'+pid);if(el)el.value=s.brand;}
+      // Бренд — заполняем всегда если есть в подсказке
+      if(s.brand!==undefined){
+        p.brand=s.brand;
+        const elB=document.getElementById('pb'+pid);
+        if(elB)elB.value=s.brand;
+      }
       if(s.article){p.article=s.article;const el=document.getElementById('pa'+pid);if(el)el.value=s.article;}
       if(s.price&&!p.price){p.price=s.price;const el=document.querySelector(`#pr${pid} input[type="number"]:nth-of-type(2)`);if(el)el.value=s.price;}
       r._unsaved=true;sch(rid);
