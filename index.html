@@ -196,25 +196,22 @@ td:first-child{text-align:left}
   .tdi-name:focus{white-space:pre-wrap;overflow:visible;text-overflow:unset;height:auto}
 }
 
-/* Мобильный — все ячейки выровнены по высоте наименования */
+/* Мобильный — колонки по содержимому, горизонтальная прокрутка */
 @media(max-width:767px){
-  table{table-layout:fixed;width:100%}
-  /* Пропорции колонок */
-  td:first-child,th:first-child{width:32%}
-  td:nth-child(2),th:nth-child(2){width:18%}
-  td:nth-child(3),th:nth-child(3){width:20%}
-  td:nth-child(4),th:nth-child(4){width:10%;text-align:center}
-  td:nth-child(5),th:nth-child(5){width:14%;text-align:right}
-  td:nth-child(6),th:nth-child(6){width:14%;text-align:right}
-  td:last-child,th:last-child{width:6%}
-  /* Все ячейки по верхней грани */
-  td{vertical-align:top;padding:8px 4px;text-align:center}
-  td:first-child{text-align:left}
-  .tdi{font-size:11px;text-align:inherit}
-  th{font-size:7px;padding:6px 4px;letter-spacing:.5px;text-align:center}
+  table{table-layout:auto;min-width:480px}
+  td,th{white-space:nowrap}
+  td:first-child,th:first-child{min-width:110px;max-width:150px;white-space:normal;text-align:left}
+  td:nth-child(2),th:nth-child(2){min-width:75px}
+  td:nth-child(3),th:nth-child(3){min-width:80px}
+  td:nth-child(4),th:nth-child(4){min-width:50px;text-align:center}
+  td:nth-child(5),th:nth-child(5){min-width:72px;text-align:right}
+  td:nth-child(6),th:nth-child(6){min-width:68px;text-align:right}
+  td:last-child{min-width:30px}
+  td{vertical-align:top;padding:8px 5px}
+  .tdi{font-size:12px;text-align:inherit}
+  .tdi-name{white-space:pre-wrap;word-break:break-word;text-align:left}
+  th{font-size:8px;padding:6px 5px;letter-spacing:.5px}
   th:first-child{text-align:left}
-  .tdi-name{white-space:pre-wrap;word-break:break-word}
-  /* Колонки с числами — по центру */
   td:nth-child(4) .tdi{text-align:center}
   td:nth-child(5) .tdi{text-align:right}
 }
