@@ -251,8 +251,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--border)33;vertical-align:middle
 .ftype.active{background:var(--accent-bg);border-color:var(--gold);color:var(--gold-l);font-weight:600}
 .search-empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px}
 .search-empty-icon{font-size:32px;margin-bottom:8px}
-mark.hl{background:rgba(212,168,67,0.35);color:var(--text);border-radius:2px;padding:0 1px}
-.hl-input{border-bottom-color:var(--gold)!important;background:rgba(212,168,67,0.08)!important}
+tr.hl-row td{background:rgba(212,168,67,0.08);border-bottom-color:rgba(212,168,67,0.2)}
+tr.hl-row td:first-child{border-left:2px solid var(--gold)}
 
 /* ═══════════ EMPTY ═══════════ */
 .empty{text-align:center;padding:48px 24px;color:var(--muted);border-top:1px solid var(--border)}
@@ -896,18 +896,20 @@ function card(r, q=''){
 }
 function autoH(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
 function pr(rid,p,q=''){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
-  return`<tr id="pr${p.id}">
-    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435..." oninput="uP(${rid},'${p.id}','name',this.value);autoH(this)">${q?hl(p.name,q):esc(p.name)}</textarea></td>
-    <td><input class="tdi${q&&(p.brand||'').toLowerCase().includes(q.toLowerCase())?' hl-input':''}" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
-    <td><input class="tdi${q&&(p.article||'').toLowerCase().includes(q.toLowerCase())?' hl-input':''}" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td>
+  const rowHl=q&&[(p.name||''),(p.brand||''),(p.article||'')].some(v=>v.toLowerCase().includes(q.toLowerCase()));
+  return`<tr id="pr${p.id}"${rowHl?' class="hl-row"':''}>
+    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435..." oninput="uP(${rid},'${p.id}','name',this.value);autoH(this)">${esc(p.name)}</textarea></td>
+    <td><input class="tdi" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
+    <td><input class="tdi" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${p.qty||1}" oninput="uP(${rid},'${p.id}','qty',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:right" value="${esc(p.price)}" placeholder="0" oninput="uP(${rid},'${p.id}','price',this.value)"></td>
     <td class="tdt" id="ptot${p.id}">${tot>0?tot.toLocaleString('ru-RU'):'—'}</td>
     <td><button class="ib" onclick="rP(${rid},'${p.id}')">&#10005;</button></td>
   </tr>`;}
 function wr(rid,w,q=''){
-  return`<tr id="wr${w.id}">
-    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b..." oninput="uW(${rid},'${w.id}','name',this.value);autoH(this)">${q?hl(w.name,q):esc(w.name)}</textarea></td>
+  const rowHl=q&&(w.name||'').toLowerCase().includes(q.toLowerCase());
+  return`<tr id="wr${w.id}"${rowHl?' class="hl-row"':''}>
+    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b..." oninput="uW(${rid},'${w.id}','name',this.value);autoH(this)">${esc(w.name)}</textarea></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${w.qty||1}" oninput="uW(${rid},'${w.id}','qty',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:right" value="${esc(w.price)}" placeholder="0" oninput="uW(${rid},'${w.id}','price',this.value)"></td>
     <td><button class="ib" onclick="rW(${rid},'${w.id}')">&#10005;</button></td>
