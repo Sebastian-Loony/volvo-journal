@@ -1012,7 +1012,23 @@ function hl(text, q){
   return safe.replace(new RegExp('('+safeQ+')', 'gi'), '<mark class="hl">$1</mark>');
 }
 
-function srt(){return[...R].sort((a,b)=>{const ma=parseInt(a.mileage)||0,mb=parseInt(b.mileage)||0;if(mb!==ma)return mb-ma;return(b.date||'').localeCompare(a.date||'');});}
+function srt(){
+  return[...R].sort((a,b)=>{
+    const ma=parseInt(a.mileage)||0, mb=parseInt(b.mileage)||0;
+    const da=a.date||'', db=b.date||'';
+    const emptyA=ma===0&&!da, emptyB=mb===0&&!db;
+    // Без пробега и без даты — всегда наверху
+    if(emptyA&&!emptyB)return -1;
+    if(!emptyA&&emptyB)return 1;
+    if(emptyA&&emptyB)return 0;
+    // Оба с пробегом — по пробегу, при равенстве по дате
+    if(ma>0&&mb>0){return mb!==ma?mb-ma:db.localeCompare(da);}
+    // Оба без пробега — по дате
+    if(ma===0&&mb===0){return db.localeCompare(da);}
+    // Один с пробегом, другой без — по дате
+    return db.localeCompare(da);
+  });
+}
 
 function rAll(){
   const isSearch = searchQ || filterType;
