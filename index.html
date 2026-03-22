@@ -178,29 +178,41 @@ body.ptr-pulling{transition:transform .1s}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{background:var(--bg2);color:var(--muted);padding:7px 8px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden}
 th.gold{color:var(--gold-l)}
-td{padding:5px 5px;border-bottom:1px solid var(--border)22;vertical-align:top}
-.tdi{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);padding:5px 6px;font-size:13px;font-weight:400;width:100%;outline:none;min-height:32px;resize:none;overflow:hidden}
-.tdi:focus{border-bottom-color:var(--gold)}
-.tdi-name{resize:none;overflow:hidden;line-height:1.4;vertical-align:top}
-.tdt{text-align:right;color:var(--gold-l);font-weight:700;font-size:13px;padding-right:8px;white-space:nowrap}
-.ib{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 6px;border-radius:4px;min-width:28px;min-height:28px}
+td{padding:8px 6px;border-bottom:1px solid var(--border)33;vertical-align:middle}
+.tdi{background:transparent;border:none;color:var(--text);padding:0;font-size:13px;font-weight:400;width:100%;outline:none;resize:none;overflow:hidden;display:block;line-height:1.4}
+.tdi:focus{color:var(--gold-l)}
+.tdi-name{word-break:break-word;white-space:pre-wrap;vertical-align:middle}
+.tdt{text-align:right;color:var(--gold-l);font-weight:700;font-size:13px;padding-right:6px;white-space:nowrap;vertical-align:middle}
+.ib{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 4px;border-radius:4px;min-width:26px;min-height:26px;display:block}
 .ib:hover{color:#e74c3c}
 
-/* ПК — широкая колонка наименования, текст в одну строку, обрезается */
+/* ПК — широкая колонка наименования, текст в одну строку */
 @media(min-width:768px){
   table{table-layout:fixed}
   td:first-child,th:first-child{width:30%;min-width:240px}
   .tdi-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tdi-name:focus{white-space:pre-wrap;overflow:visible;text-overflow:unset;height:auto}
 }
-/* Мобильный — колонка наименования переносится по словам, растёт по высоте */
+
+/* Мобильный — все ячейки выровнены по высоте наименования */
 @media(max-width:767px){
-  table{table-layout:auto}
-  td:first-child,th:first-child{min-width:100px;max-width:140px}
+  table{table-layout:fixed;width:100%}
+  /* Пропорции колонок */
+  td:first-child,th:first-child{width:32%}
+  td:nth-child(2),th:nth-child(2){width:18%}
+  td:nth-child(3),th:nth-child(3){width:20%}
+  td:nth-child(4),th:nth-child(4){width:10%;text-align:center}
+  td:nth-child(5),th:nth-child(5){width:14%;text-align:right}
+  td:nth-child(6),th:nth-child(6){width:14%;text-align:right}
+  td:last-child,th:last-child{width:6%}
+  /* Все ячейки по центру вертикально */
+  td{vertical-align:middle;padding:8px 4px}
+  .tdi{font-size:11px;text-align:inherit}
+  th{font-size:7px;padding:6px 4px;letter-spacing:.5px}
   .tdi-name{white-space:pre-wrap;word-break:break-word}
-  .tdi{font-size:12px}
-  th{font-size:8px;padding:6px 5px}
-  td{padding:4px 4px}
+  /* Колонки с числами — по центру */
+  td:nth-child(4) .tdi{text-align:center}
+  td:nth-child(5) .tdi{text-align:right}
 }
 .smb{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 14px;margin-top:6px;letter-spacing:.3px}
 .smb:hover{border-color:var(--gold);color:var(--gold-l)}
@@ -872,9 +884,22 @@ function card(r){
 }
 function autoH(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
 function pr(rid,p){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
-  return`<tr id="pr${p.id}"><td><textarea class="tdi tdi-name" rows="1" placeholder="\u0424\u0438\u043b\u044c\u0442\u0440..." oninput="uP(${rid},'${p.id}','name',this.value);autoH(this)">${esc(p.name)}</textarea></td><td style="min-width:80px"><input class="tdi" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td><td style="min-width:90px"><input class="tdi" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td><td style="min-width:50px"><input class="tdi" type="number" style="text-align:center" value="${p.qty||1}" oninput="uP(${rid},'${p.id}','qty',this.value)"></td><td style="min-width:80px"><input class="tdi" type="number" style="text-align:right" value="${esc(p.price)}" placeholder="0" oninput="uP(${rid},'${p.id}','price',this.value)"></td><td class="tdt" id="ptot${p.id}" style="min-width:75px;white-space:nowrap">${tot>0?tot.toLocaleString('ru-RU'):'—'}</td><td><button class="ib" onclick="rP(${rid},'${p.id}')">&#10005;</button></td></tr>`;}
+  return`<tr id="pr${p.id}">
+    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435..." oninput="uP(${rid},'${p.id}','name',this.value);autoH(this)">${esc(p.name)}</textarea></td>
+    <td><input class="tdi" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
+    <td><input class="tdi" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td>
+    <td><input class="tdi" type="number" style="text-align:center" value="${p.qty||1}" oninput="uP(${rid},'${p.id}','qty',this.value)"></td>
+    <td><input class="tdi" type="number" style="text-align:right" value="${esc(p.price)}" placeholder="0" oninput="uP(${rid},'${p.id}','price',this.value)"></td>
+    <td class="tdt" id="ptot${p.id}">${tot>0?tot.toLocaleString('ru-RU'):'—'}</td>
+    <td><button class="ib" onclick="rP(${rid},'${p.id}')">&#10005;</button></td>
+  </tr>`;}
 function wr(rid,w){
-  return`<tr id="wr${w.id}"><td><textarea class="tdi tdi-name" rows="1" placeholder="\u0417\u0430\u043c\u0435\u043d\u0430 \u043c\u0430\u0441\u043b\u0430..." oninput="uW(${rid},'${w.id}','name',this.value);autoH(this)">${esc(w.name)}</textarea></td><td style="min-width:60px"><input class="tdi" type="number" style="text-align:center" value="${w.qty||1}" oninput="uW(${rid},'${w.id}','qty',this.value)"></td><td style="min-width:85px"><input class="tdi" type="number" style="text-align:right" value="${esc(w.price)}" placeholder="0" oninput="uW(${rid},'${w.id}','price',this.value)"></td><td><button class="ib" onclick="rW(${rid},'${w.id}')">&#10005;</button></td></tr>`;}
+  return`<tr id="wr${w.id}">
+    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b..." oninput="uW(${rid},'${w.id}','name',this.value);autoH(this)">${esc(w.name)}</textarea></td>
+    <td><input class="tdi" type="number" style="text-align:center" value="${w.qty||1}" oninput="uW(${rid},'${w.id}','qty',this.value)"></td>
+    <td><input class="tdi" type="number" style="text-align:right" value="${esc(w.price)}" placeholder="0" oninput="uW(${rid},'${w.id}','price',this.value)"></td>
+    <td><button class="ib" onclick="rW(${rid},'${w.id}')">&#10005;</button></td>
+  </tr>`;}
 
 function tc(id){const r=gr(id);if(!r)return;r._open=!r._open;rAll();}
 function upd(id,f,v){const r=gr(id);if(!r)return;r[f]=v;r._unsaved=true;sch(id);renderDash();}
