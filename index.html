@@ -251,6 +251,8 @@ td{padding:8px 6px;border-bottom:1px solid var(--border)33;vertical-align:middle
 .ftype.active{background:var(--accent-bg);border-color:var(--gold);color:var(--gold-l);font-weight:600}
 .search-empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px}
 .search-empty-icon{font-size:32px;margin-bottom:8px}
+mark.hl{background:rgba(212,168,67,0.35);color:var(--text);border-radius:2px;padding:0 1px}
+.hl-input{border-bottom-color:var(--gold)!important;background:rgba(212,168,67,0.08)!important}
 
 /* ═══════════ EMPTY ═══════════ */
 .empty{text-align:center;padding:48px 24px;color:var(--muted);border-top:1px solid var(--border)}
@@ -779,53 +781,63 @@ function setType(el,t){
   rAll();
 }
 function matchRecord(r){
-  // Фильтр по типу
   if(filterType && r.type!==filterType) return false;
-  // Если поиск пустой — показываем всё
   if(!searchQ) return true;
   const q=searchQ;
-  // Тип
   if((r.type||'').toLowerCase().includes(q)) return true;
-  // Пробег
   if((r.mileage||'').toString().includes(q)) return true;
-  // Дата — ищем и в исходном формате и в д.м.г
   if((r.date||'').toLowerCase().includes(q)) return true;
   if(fmtDate(r.date||'').includes(q)) return true;
-  // Рекомендации
   if((r.recommendations||'').toLowerCase().includes(q)) return true;
-  // Запчасти
   for(const p of r.parts||[]){
     if((p.name||'').toLowerCase().includes(q)) return true;
     if((p.brand||'').toLowerCase().includes(q)) return true;
     if((p.article||'').toLowerCase().includes(q)) return true;
   }
-  // Работы
   for(const w of r.works||[]){
     if((w.name||'').toLowerCase().includes(q)) return true;
   }
   return false;
 }
 
+// Подсветка совпадений в тексте
+function hl(text, q){
+  if(!q||!text) return esc(text||'');
+  const safe=esc(text);
+  const safeQ=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return safe.replace(new RegExp('('+safeQ+')', 'gi'), '<mark class="hl">$1</mark>');
+}
+
 function srt(){return[...R].sort((a,b)=>{const ma=parseInt(a.mileage)||0,mb=parseInt(b.mileage)||0;if(mb!==ma)return mb-ma;return(b.date||'').localeCompare(a.date||'');});}
+
 function rAll(){
-  const filtered=srt().filter(matchRecord);
-  document.getElementById('rcnt').textContent='Записи \u00B7 '+R.length+(filtered.length!==R.length?' (показано '+filtered.length+')':'');
+  const isSearch = searchQ || filterType;
+  // При активном поиске — раскрываем совпадения, при очистке — сворачиваем все
+  const sorted = srt();
+  if(isSearch){
+    sorted.forEach(r=>{ if(matchRecord(r) && !r._open){ r._open=true; r._openedBySearch=true; } });
+  } else {
+    // Очистка поиска — сворачиваем записи которые были открыты только поиском
+    sorted.forEach(r=>{ if(r._openedBySearch) { r._open=false; r._openedBySearch=false; } });
+  }
+  const filtered = sorted.filter(matchRecord);
+  document.getElementById('rcnt').textContent='Записи \u00B7 '+R.length+(filtered.length!==R.length?' \u00B7 \u043d\u0430\u0439\u0434\u0435\u043d\u043e: '+filtered.length:'');
   const l=document.getElementById('rlist');
   if(!R.length){
     l.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#128295;</div><div>\u041f\u043e\u043a\u0430 \u043d\u0435\u0442 \u043d\u0438 \u043e\u0434\u043d\u043e\u0439 \u0437\u0430\u043f\u0438\u0441\u0438</div></div>';
     renderDash();return;
   }
-  if(!filtered.length){
-    l.innerHTML='<div class="search-empty"><div class="search-empty-icon">&#128270;</div>\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e \u043f\u043e \u0437\u0430\u043f\u0440\u043e\u0441\u0443 \u00AB'+searchQ+'\u00BB</div>';
+  if(isSearch && !filtered.length){
+    l.innerHTML='<div class="search-empty"><div class="search-empty-icon">&#128270;</div>\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e \u043f\u043e \u00AB'+esc(searchQ)+'\u00BB</div>';
     renderDash();return;
   }
-  l.innerHTML=filtered.map(r=>card(r)).join('');
+  l.innerHTML=filtered.map(r=>card(r,searchQ)).join('');
   setTimeout(()=>document.querySelectorAll('.tdi-name').forEach(el=>autoH(el)),0);
   renderDash();
 }
 function fmtDate(d){if(!d)return'';const p=d.split('-');return p.length===3?p[2]+'.'+p[1]+'.'+p[0]:d;}
 function bc(t){return t==='\u0422\u041e'?'bto':t==='\u0420\u0435\u043c\u043e\u043d\u0442'?'brem':'both';}
-function card(r){
+function card(r, q=''){
   const tot=sP(r.parts)+sW(r.works),op=r._open||false;
   return`<div class="rc" id="c${r.id}">
 <div class="rh${op?' open':''}" onclick="tc(${r.id})">
@@ -856,7 +868,7 @@ function card(r){
     <div class="sl"><span class="sb"></span>\u0417\u0430\u043f\u0447\u0430\u0441\u0442\u0438</div>
     <div class="tw"><table>
       <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435</th><th>\u0411\u0440\u0435\u043d\u0434</th><th>\u0410\u0440\u0442\u0438\u043a\u0443\u043b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0426\u0435\u043d\u0430 \u0437\u0430 \u0448\u0442, &#8381;</th><th class="gold">\u0418\u0442\u043e\u0433\u043e, &#8381;</th><th></th></tr></thead>
-      <tbody id="pt${r.id}">${r.parts.map(p=>pr(r.id,p)).join('')}</tbody>
+      <tbody id="pt${r.id}">${r.parts.map(p=>pr(r.id,p,q)).join('')}</tbody>
     </table></div>
     <button class="smb" onclick="aP(${r.id})">+ \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0437\u0430\u043f\u0447\u0430\u0441\u0442\u044c</button>
     <div class="tsum" id="ps${r.id}">\u0418\u0442\u043e\u0433\u043e: <span>${fmt(sP(r.parts))}</span></div>
@@ -865,7 +877,7 @@ function card(r){
     <div class="sl"><span class="sb"></span>\u0420\u0430\u0431\u043e\u0442\u044b</div>
     <div class="tw"><table>
       <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c, &#8381;</th><th></th></tr></thead>
-      <tbody id="wt${r.id}">${r.works.map(w=>wr(r.id,w)).join('')}</tbody>
+      <tbody id="wt${r.id}">${r.works.map(w=>wr(r.id,w,q)).join('')}</tbody>
     </table></div>
     <button class="smb" onclick="aW(${r.id})">+ \u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0440\u0430\u0431\u043e\u0442\u0443</button>
     <div class="tsum" id="ws${r.id}">\u0418\u0442\u043e\u0433\u043e: <span>${fmt(sW(r.works))}</span></div>
@@ -883,25 +895,25 @@ function card(r){
 </div></div>`;
 }
 function autoH(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
-function pr(rid,p){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
+function pr(rid,p,q=''){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
   return`<tr id="pr${p.id}">
-    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435..." oninput="uP(${rid},'${p.id}','name',this.value);autoH(this)">${esc(p.name)}</textarea></td>
-    <td><input class="tdi" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
-    <td><input class="tdi" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td>
+    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435..." oninput="uP(${rid},'${p.id}','name',this.value);autoH(this)">${q?hl(p.name,q):esc(p.name)}</textarea></td>
+    <td><input class="tdi${q&&(p.brand||'').toLowerCase().includes(q.toLowerCase())?' hl-input':''}" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
+    <td><input class="tdi${q&&(p.article||'').toLowerCase().includes(q.toLowerCase())?' hl-input':''}" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${p.qty||1}" oninput="uP(${rid},'${p.id}','qty',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:right" value="${esc(p.price)}" placeholder="0" oninput="uP(${rid},'${p.id}','price',this.value)"></td>
     <td class="tdt" id="ptot${p.id}">${tot>0?tot.toLocaleString('ru-RU'):'—'}</td>
     <td><button class="ib" onclick="rP(${rid},'${p.id}')">&#10005;</button></td>
   </tr>`;}
-function wr(rid,w){
+function wr(rid,w,q=''){
   return`<tr id="wr${w.id}">
-    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b..." oninput="uW(${rid},'${w.id}','name',this.value);autoH(this)">${esc(w.name)}</textarea></td>
+    <td><textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b..." oninput="uW(${rid},'${w.id}','name',this.value);autoH(this)">${q?hl(w.name,q):esc(w.name)}</textarea></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${w.qty||1}" oninput="uW(${rid},'${w.id}','qty',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:right" value="${esc(w.price)}" placeholder="0" oninput="uW(${rid},'${w.id}','price',this.value)"></td>
     <td><button class="ib" onclick="rW(${rid},'${w.id}')">&#10005;</button></td>
   </tr>`;}
 
-function tc(id){const r=gr(id);if(!r)return;r._open=!r._open;rAll();}
+function tc(id){const r=gr(id);if(!r)return;r._open=!r._open;if(r._open)r._openedBySearch=false;rAll();}
 function upd(id,f,v){const r=gr(id);if(!r)return;r[f]=v;r._unsaved=true;sch(id);renderDash();}
 function uP(rid,pid,f,v){const r=gr(rid);if(!r)return;const p=r.parts.find(x=>String(x.id)===String(pid));if(!p)return;p[f]=v;r._unsaved=true;if(f==='price'||f==='qty'){const t=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);const el=document.getElementById('ptot'+pid);if(el)el.textContent=t>0?t.toLocaleString('ru-RU'):'—';const se=document.querySelector('#ps'+rid+' span');if(se)se.textContent=fmt(sP(r.parts));}sch(rid);}
 function uW(rid,wid,f,v){const r=gr(rid);if(!r)return;const w=r.works.find(x=>String(x.id)===String(wid));if(!w)return;w[f]=v;r._unsaved=true;if(f==='price'||f==='qty'){const se=document.querySelector('#ws'+rid+' span');if(se)se.textContent=fmt(sW(r.works));}sch(rid);}
