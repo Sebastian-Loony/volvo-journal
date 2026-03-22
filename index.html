@@ -302,8 +302,11 @@ td:nth-child(n+2) .tdi{text-align:center}
 .tech-edit-hint{font-size:9px;color:var(--muted);margin-top:4px;opacity:.7}
 
 /* Модал редактирования тех карточки */
-.tech-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-@media(max-width:400px){.tech-modal-grid{grid-template-columns:1fr}}
+.tech-modal-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+@media(min-width:600px){.tech-modal-grid{grid-template-columns:1fr 1fr}}
+
+/* Разделитель между блоками в дашборде */
+.dash-separator{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:16px 0}
 .search-wrap{margin-bottom:14px}
 .search-input-wrap{position:relative;display:flex;align-items:center;margin-bottom:10px}
 .search-icon{position:absolute;left:11px;font-size:14px;color:var(--muted);pointer-events:none}
@@ -426,6 +429,7 @@ tr.hl-row td:first-child{border-left:2px solid var(--gold)}
   <div class="car-details" id="car-details">
     <div class="car-grid" id="car-grid"></div>
   </div>
+  <div class="dash-separator"></div>
 
   <!-- KPI: 2x2 сетка — Расходы | ОСАГО / Следующее ТО | Текущий пробег -->
   <div class="kpi-grid" id="kpi-grid">
