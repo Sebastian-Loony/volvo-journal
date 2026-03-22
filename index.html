@@ -54,7 +54,18 @@ input,select,textarea,button{font-family:'Inter',system-ui,sans-serif;transition
 button{cursor:pointer}
 .mono{font-family:'JetBrains Mono',monospace!important}
 
-/* ═══════════ SYNC BAR ═══════════ */
+/* ═══════════ PULL TO REFRESH ═══════════ */
+.ptr{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;height:0;overflow:hidden;transition:height .2s ease;opacity:0}
+.ptr.visible{opacity:1}
+.ptr-spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;flex-shrink:0}
+.ptr-spinner.spin{animation:sp .7s linear infinite}
+.ptr-text{font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap}
+
+/* Сдвиг страницы при pull */
+body.ptr-pulling{transition:transform .1s}
+
+/* Только на мобильном */
+@media(min-width:768px){.ptr{display:none!important}}
 .sync-bar{text-align:center;padding:5px;font-size:10px;font-weight:500;background:var(--sync-bg);border-bottom:1px solid var(--border);letter-spacing:1px;color:var(--muted)}
 .sync-bar.err{background:rgba(192,57,43,0.1);color:#e74c3c}
 
@@ -164,30 +175,29 @@ button{cursor:pointer}
 
 /* ═══════════ TABLE ═══════════ */
 .tw{overflow-x:auto;margin-bottom:14px;-webkit-overflow-scrolling:touch}
-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+table{width:100%;border-collapse:collapse;font-size:13px}
 th{background:var(--bg2);color:var(--muted);padding:7px 8px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden}
 th.gold{color:var(--gold-l)}
 td{padding:5px 5px;border-bottom:1px solid var(--border)22;vertical-align:top}
-/* Колонка наименования — растягивается */
-td:first-child{word-break:break-word;white-space:normal;min-width:120px}
-th:first-child{min-width:120px}
-.tdi{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);padding:5px 6px;font-size:13px;font-weight:400;width:100%;outline:none;min-height:32px;word-break:break-word;white-space:normal;resize:none;overflow:hidden}
+.tdi{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);padding:5px 6px;font-size:13px;font-weight:400;width:100%;outline:none;min-height:32px;resize:none;overflow:hidden}
 .tdi:focus{border-bottom-color:var(--gold)}
-.tdi-name{resize:none;overflow:hidden;line-height:1.4;white-space:pre-wrap;word-break:break-word;vertical-align:top}
+.tdi-name{resize:none;overflow:hidden;line-height:1.4;vertical-align:top}
 .tdt{text-align:right;color:var(--gold-l);font-weight:700;font-size:13px;padding-right:8px;white-space:nowrap}
 .ib{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 6px;border-radius:4px;min-width:28px;min-height:28px}
 .ib:hover{color:#e74c3c}
 
-/* ПК — наименование шире */
+/* ПК — широкая колонка наименования, текст в одну строку, обрезается */
 @media(min-width:768px){
-  td:first-child{min-width:200px}
-  th:first-child{min-width:200px}
+  table{table-layout:fixed}
+  td:first-child,th:first-child{width:30%;min-width:240px}
+  .tdi-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tdi-name:focus{white-space:pre-wrap;overflow:visible;text-overflow:unset;height:auto}
 }
-/* Мобильный — наименование переносится, остальные колонки компактнее */
+/* Мобильный — колонка наименования переносится по словам, растёт по высоте */
 @media(max-width:767px){
   table{table-layout:auto}
-  td:first-child{min-width:110px;max-width:160px}
-  th:first-child{min-width:110px}
+  td:first-child,th:first-child{min-width:100px;max-width:140px}
+  .tdi-name{white-space:pre-wrap;word-break:break-word}
   .tdi{font-size:12px}
   th{font-size:8px;padding:6px 5px}
   td{padding:4px 4px}
@@ -213,6 +223,22 @@ th:first-child{min-width:120px}
 .toast{position:fixed;bottom:80px;right:16px;background:var(--gold);color:#0f0d0a;font-weight:700;padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:0 4px 20px var(--shadow);opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
 @media(min-width:768px){.toast{bottom:24px;right:24px}}
+
+/* ═══════════ SEARCH ═══════════ */
+.search-wrap{margin-bottom:14px}
+.search-input-wrap{position:relative;display:flex;align-items:center;margin-bottom:10px}
+.search-icon{position:absolute;left:11px;font-size:14px;color:var(--muted);pointer-events:none}
+.search-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:9px 36px 9px 34px;font-size:13px;font-weight:400;outline:none;font-family:'Inter',sans-serif}
+.search-input:focus{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)18}
+.search-input::placeholder{color:var(--muted)}
+.search-clear{position:absolute;right:8px;background:none;border:none;color:var(--muted);font-size:14px;padding:4px 6px;cursor:pointer;line-height:1}
+.search-clear:hover{color:var(--text)}
+.filter-types{display:flex;gap:6px;flex-wrap:wrap}
+.ftype{background:none;border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 13px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.ftype:hover{border-color:var(--gold);color:var(--gold-l)}
+.ftype.active{background:var(--accent-bg);border-color:var(--gold);color:var(--gold-l);font-weight:600}
+.search-empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px}
+.search-empty-icon{font-size:32px;margin-bottom:8px}
 
 /* ═══════════ EMPTY ═══════════ */
 .empty{text-align:center;padding:48px 24px;color:var(--muted);border-top:1px solid var(--border)}
@@ -276,6 +302,12 @@ th:first-child{min-width:120px}
 </style>
 </head>
 <body>
+
+<!-- PULL TO REFRESH -->
+<div id="ptr" class="ptr">
+  <div class="ptr-spinner" id="ptr-spinner"></div>
+  <span class="ptr-text" id="ptr-text">Потяните для обновления</span>
+</div>
 
 <div id="sbar" class="sync-bar">&#9679; Подключение...</div>
 
@@ -354,6 +386,24 @@ th:first-child{min-width:120px}
       </div>
     </div>
     <div id="ov" class="ov" onclick="cdd()"></div>
+
+    <!-- ПОИСК И ФИЛЬТРЫ -->
+    <div class="search-wrap">
+      <div class="search-input-wrap">
+        <span class="search-icon">&#128269;</span>
+        <input class="search-input" id="search-input" type="text" placeholder="Поиск по запчастям, работам, типу, пробегу, дате..." oninput="onSearch(this.value)">
+        <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">&#10005;</button>
+      </div>
+      <div class="filter-types" id="filter-types">
+        <button class="ftype active" data-t="" onclick="setType(this,'')">Все</button>
+        <button class="ftype" data-t="ТО" onclick="setType(this,'ТО')">ТО</button>
+        <button class="ftype" data-t="Ремонт" onclick="setType(this,'Ремонт')">Ремонт</button>
+        <button class="ftype" data-t="Диагностика" onclick="setType(this,'Диагностика')">Диагн.</button>
+        <button class="ftype" data-t="Шиномонтаж" onclick="setType(this,'Шиномонтаж')">Шины</button>
+        <button class="ftype" data-t="Прочее" onclick="setType(this,'Прочее')">Прочее</button>
+      </div>
+    </div>
+
     <button class="add-btn" onclick="addNew()"><span style="font-size:18px;line-height:1">+</span>&nbsp; Новая запись</button>
     <div id="rlist"></div>
   </div>
@@ -696,13 +746,68 @@ function renderDash(){
 }
 
 // ── RECORDS RENDER ────────────────────────────────────────────────
+// ── SEARCH & FILTER ───────────────────────────────────────────────
+let searchQ='', filterType='';
+
+function onSearch(v){
+  searchQ=v.trim().toLowerCase();
+  document.getElementById('search-clear').style.display=searchQ?'':'none';
+  rAll();
+}
+function clearSearch(){
+  searchQ='';
+  document.getElementById('search-input').value='';
+  document.getElementById('search-clear').style.display='none';
+  rAll();
+}
+function setType(el,t){
+  filterType=t;
+  document.querySelectorAll('.ftype').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  rAll();
+}
+function matchRecord(r){
+  // Фильтр по типу
+  if(filterType && r.type!==filterType) return false;
+  // Если поиск пустой — показываем всё
+  if(!searchQ) return true;
+  const q=searchQ;
+  // Тип
+  if((r.type||'').toLowerCase().includes(q)) return true;
+  // Пробег
+  if((r.mileage||'').toString().includes(q)) return true;
+  // Дата — ищем и в исходном формате и в д.м.г
+  if((r.date||'').toLowerCase().includes(q)) return true;
+  if(fmtDate(r.date||'').includes(q)) return true;
+  // Рекомендации
+  if((r.recommendations||'').toLowerCase().includes(q)) return true;
+  // Запчасти
+  for(const p of r.parts||[]){
+    if((p.name||'').toLowerCase().includes(q)) return true;
+    if((p.brand||'').toLowerCase().includes(q)) return true;
+    if((p.article||'').toLowerCase().includes(q)) return true;
+  }
+  // Работы
+  for(const w of r.works||[]){
+    if((w.name||'').toLowerCase().includes(q)) return true;
+  }
+  return false;
+}
+
 function srt(){return[...R].sort((a,b)=>{const ma=parseInt(a.mileage)||0,mb=parseInt(b.mileage)||0;if(mb!==ma)return mb-ma;return(b.date||'').localeCompare(a.date||'');});}
 function rAll(){
-  document.getElementById('rcnt').textContent='\u0417\u0430\u043f\u0438\u0441\u0438 \u00B7 '+R.length;
+  const filtered=srt().filter(matchRecord);
+  document.getElementById('rcnt').textContent='Записи \u00B7 '+R.length+(filtered.length!==R.length?' (показано '+filtered.length+')':'');
   const l=document.getElementById('rlist');
-  if(!R.length){l.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#128295;</div><div>\u041f\u043e\u043a\u0430 \u043d\u0435\u0442 \u043d\u0438 \u043e\u0434\u043d\u043e\u0439 \u0437\u0430\u043f\u0438\u0441\u0438</div></div>';renderDash();return;}
-  l.innerHTML=srt().map(r=>card(r)).join('');
-  // Автовысота textarea после рендера
+  if(!R.length){
+    l.innerHTML='<div class="empty"><div style="font-size:40px;margin-bottom:12px">&#128295;</div><div>\u041f\u043e\u043a\u0430 \u043d\u0435\u0442 \u043d\u0438 \u043e\u0434\u043d\u043e\u0439 \u0437\u0430\u043f\u0438\u0441\u0438</div></div>';
+    renderDash();return;
+  }
+  if(!filtered.length){
+    l.innerHTML='<div class="search-empty"><div class="search-empty-icon">&#128270;</div>\u041d\u0438\u0447\u0435\u0433\u043e \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u043e \u043f\u043e \u0437\u0430\u043f\u0440\u043e\u0441\u0443 \u00AB'+searchQ+'\u00BB</div>';
+    renderDash();return;
+  }
+  l.innerHTML=filtered.map(r=>card(r)).join('');
   setTimeout(()=>document.querySelectorAll('.tdi-name').forEach(el=>autoH(el)),0);
   renderDash();
 }
@@ -882,6 +987,69 @@ async function init(){
   }
 }
 async function impXLSX(input){cdd();const file=input.files[0];if(!file)return;try{const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:'array'});const ws=wb.Sheets['\u0421\u0432\u043e\u0434\u043a\u0430']||wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});const hi=rows.findIndex(r=>r[0]==='\u0414\u0430\u0442\u0430');if(hi<0){toast('\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c \u0444\u043e\u0440\u043c\u0430\u0442');return;}const imp=rows.slice(hi+1).filter(r=>r[0]&&r[1]).map((r,i)=>({id:Date.now()+i,date:r[0]||'',type:r[1]||'\u0422\u041e',mileage:String(r[2]||''),parts:[],works:[],recommendations:r[6]||''}));for(const r of imp)await dbSave(r);await init();toast('Excel: '+imp.length+' \u0437\u0430\u043f. \u2713');}catch(e){toast('\u041e\u0448\u0438\u0431\u043a\u0430 Excel');}input.value='';}
+
+// ── PULL TO REFRESH ───────────────────────────────────────────────
+(function(){
+  const THRESHOLD = 80; // px для срабатывания
+  const ptr = document.getElementById('ptr');
+  const ptrText = document.getElementById('ptr-text');
+  const ptrSpinner = document.getElementById('ptr-spinner');
+  let startY = 0, pulling = false, refreshing = false, currentY = 0;
+
+  function setPtrHeight(h){
+    ptr.style.height = h + 'px';
+    ptr.classList.toggle('visible', h > 0);
+  }
+
+  document.addEventListener('touchstart', e => {
+    if(refreshing) return;
+    if(window.scrollY === 0) {
+      startY = e.touches[0].clientY;
+      pulling = true;
+    }
+  }, {passive: true});
+
+  document.addEventListener('touchmove', e => {
+    if(!pulling || refreshing) return;
+    currentY = e.touches[0].clientY;
+    const dist = Math.max(0, currentY - startY);
+    if(dist <= 0) return;
+    // Сопротивление — тянем медленнее чем палец
+    const h = Math.min(dist * 0.45, 60);
+    setPtrHeight(h);
+    ptrSpinner.classList.remove('spin');
+    if(dist > THRESHOLD){
+      ptrText.textContent = '\u041e\u0442\u043f\u0443\u0441\u0442\u0438\u0442\u0435 \u0434\u043b\u044f \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f';
+    } else {
+      ptrText.textContent = '\u041f\u043e\u0442\u044f\u043d\u0438\u0442\u0435 \u0434\u043b\u044f \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f';
+    }
+  }, {passive: true});
+
+  document.addEventListener('touchend', async e => {
+    if(!pulling || refreshing) return;
+    pulling = false;
+    const dist = currentY - startY;
+    if(dist > THRESHOLD){
+      // Запускаем обновление
+      refreshing = true;
+      setPtrHeight(52);
+      ptrText.textContent = '\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435...';
+      ptrSpinner.classList.add('spin');
+      try {
+        await init();
+        ptrText.textContent = '\u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u043e \u2713';
+        setTimeout(()=>{ setPtrHeight(0); refreshing = false; }, 700);
+      } catch(err) {
+        ptrText.textContent = '\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f';
+        setTimeout(()=>{ setPtrHeight(0); refreshing = false; }, 1200);
+      }
+    } else {
+      // Не дотянули — прячем
+      setPtrHeight(0);
+    }
+    startY = 0; currentY = 0;
+  }, {passive: true});
+})();
 
 // Применяем тему сразу из localStorage (до загрузки из сети)
 loadCFGLocal();
