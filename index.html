@@ -101,11 +101,16 @@ body.ptr-pulling{transition:transform .1s}
 
 /* Данные авто */
 .car-details-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:10px 0;border-top:1px solid var(--border);margin-top:4px}
-.car-details-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.car-details-label{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
 .car-details-chev{color:var(--muted);font-size:14px;transition:transform .2s;margin-left:auto}
 .car-details-chev.open{transform:rotate(180deg)}
 .car-details{display:none;padding-top:12px}
 .car-details.open{display:block}
+.tech-status-badge{width:10px;height:10px;border-radius:50%;flex-shrink:0;display:none}
+.tech-status-badge.show{display:inline-block}
+.tech-status-badge.ok{background:#2ecc71;box-shadow:0 0 6px #2ecc7188}
+.tech-status-badge.warn{background:#f39c12;box-shadow:0 0 6px #f39c1288}
+.tech-status-badge.crit{background:#e74c3c;box-shadow:0 0 6px #e74c3c88}
 .car-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
 @media(max-width:480px){.car-grid{grid-template-columns:1fr 1fr}}
 .cf{background:var(--accent-bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px}
@@ -413,6 +418,15 @@ tr.hl-row td:first-child{border-left:2px solid var(--gold)}
     </div>
   </div>
 
+  <!-- Данные авто — сворачиваемые -->
+  <div class="car-details-toggle" onclick="toggleCarDetails()">
+    <span class="car-details-label">Данные автомобиля</span>
+    <span class="car-details-chev" id="car-det-chev">&#8964;</span>
+  </div>
+  <div class="car-details" id="car-details">
+    <div class="car-grid" id="car-grid"></div>
+  </div>
+
   <!-- KPI: 2x2 сетка — Расходы | ОСАГО / Следующее ТО | Текущий пробег -->
   <div class="kpi-grid" id="kpi-grid">
     <!-- Расходы — слева сверху -->
@@ -449,18 +463,10 @@ tr.hl-row td:first-child{border-left:2px solid var(--gold)}
     </div>
   </div>
 
-  <!-- Данные авто — сворачиваемые -->
-  <div class="car-details-toggle" onclick="toggleCarDetails()">
-    <span class="car-details-label">Данные автомобиля</span>
-    <span class="car-details-chev" id="car-det-chev">&#8964;</span>
-  </div>
-  <div class="car-details" id="car-details">
-    <div class="car-grid" id="car-grid"></div>
-  </div>
-
   <!-- ТЕХ БЛОК -->
   <div class="car-details-toggle" onclick="toggleTechBlock()">
-    <span class="car-details-label">&#128295; Тех блок</span>
+    <span class="car-details-label" style="color:var(--text)">ТЕХ БЛОК</span>
+    <span class="tech-status-badge" id="tech-badge"></span>
     <span class="car-details-chev" id="tech-chev">&#8964;</span>
   </div>
   <div class="car-details" id="tech-block">
@@ -1324,6 +1330,7 @@ async function init(){
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='block';
     rAll();
+    updateTechBadge();
   }catch(e){
     sb('\u25cf \u041e\u0448\u0438\u0431\u043a\u0430: '+e.message,true);
     document.getElementById('loading').innerHTML='<div style="color:#e74c3c;text-align:center;padding:40px">\u041e\u0448\u0438\u0431\u043a\u0430 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f.<br><small>'+e.message+'</small></div>';
@@ -1421,6 +1428,22 @@ function techNextText(item){
   return parts;
 }
 
+function updateTechBadge(){
+  const badge=document.getElementById('tech-badge');
+  if(!badge)return;
+  // Считаем общий статус по всем элементам у которых есть данные
+  let worst='none';
+  for(const item of TECH_ITEMS){
+    const st=techStatus(item);
+    if(st==='crit'){worst='crit';break;}
+    if(st==='warn')worst='warn';
+    else if(st==='ok'&&worst==='none')worst='ok';
+  }
+  badge.className='tech-status-badge';
+  if(worst==='none'){badge.classList.remove('show');return;}
+  badge.classList.add('show',worst);
+}
+
 function renderTechBlock(){
   const tg=document.getElementById('tech-grid');
   tg.className='tech-grid';
@@ -1442,6 +1465,7 @@ function renderTechBlock(){
       </div>
     </div>`;
   }).join('');
+  updateTechBadge();
 }
 
 // Редактирование тех карточки
