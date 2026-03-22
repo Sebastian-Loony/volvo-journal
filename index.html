@@ -558,6 +558,7 @@ tr.hl-row td:first-child{border-left:2px solid var(--gold)}
       <div class="settings-section">
         <div class="settings-section-title">&#128200; Период расходов</div>
         <div class="period-picker" id="period-picker">
+          <button class="period-opt" data-p="all" onclick="setPeriod('all')">За всё время</button>
           <button class="period-opt" data-p="calendar" onclick="setPeriod('calendar')">Календарный год</button>
           <button class="period-opt" data-p="1" onclick="setPeriod('1')">1 месяц</button>
           <button class="period-opt" data-p="3" onclick="setPeriod('3')">3 месяца</button>
@@ -807,7 +808,9 @@ function renderDash(){
   const expLbl=document.getElementById('kpi-exp-label');
   const now=new Date();
   let from,lbl;
-  if(CFG.period==='calendar'){
+  if(CFG.period==='all'){
+    from=new Date(0);lbl='\u0420\u0430\u0441\u0445\u043e\u0434\u044b \u0437\u0430 \u0432\u0441\u0451 \u0432\u0440\u0435\u043c\u044f';
+  } else if(CFG.period==='calendar'){
     from=new Date(now.getFullYear(),0,1);lbl='\u0420\u0430\u0441\u0445\u043e\u0434\u044b '+now.getFullYear();
   } else {
     const m=parseInt(CFG.period)||12;
