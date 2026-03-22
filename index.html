@@ -181,14 +181,13 @@ th:first-child{text-align:left}
 th.gold{color:var(--gold-l)}
 td{padding:8px 6px;border-bottom:1px solid var(--border)33;vertical-align:top;text-align:center}
 td:first-child{text-align:left}
-/* Колонки цен (5 и 6) — по центру на всех устройствах */
-td:nth-child(5),th:nth-child(5){text-align:center}
-td:nth-child(6),th:nth-child(6){text-align:center}
-td:nth-child(5) .tdi,td:nth-child(6) .tdt{text-align:center}
+/* Все колонки кроме первой — по центру */
+td:nth-child(n+2),th:nth-child(n+2){text-align:center}
+td:nth-child(n+2) .tdi{text-align:center}
+.tdt{text-align:center;color:var(--gold-l);font-weight:700;font-size:13px;white-space:nowrap;vertical-align:top}
 .tdi{background:transparent;border:none;color:var(--text);padding:0;font-size:13px;font-weight:400;width:100%;outline:none;resize:none;overflow:hidden;display:block;line-height:1.4;text-align:inherit}
 .tdi:focus{color:var(--gold-l)}
 .tdi-name{word-break:break-word;white-space:pre-wrap;vertical-align:top;text-align:left}
-.tdt{text-align:center;color:var(--gold-l);font-weight:700;font-size:13px;white-space:nowrap;vertical-align:top}
 .ib{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 4px;border-radius:4px;min-width:26px;min-height:26px;display:block}
 .ib:hover{color:#e74c3c}
 
