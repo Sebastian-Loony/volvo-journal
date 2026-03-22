@@ -81,7 +81,7 @@ body.ptr-pulling{transition:transform .1s}
 .car-plate-flag{font-size:15px}
 
 /* KPI grid — 2x2 */
-.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
 .kpi-editable{cursor:pointer;transition:border-color .2s}
 .kpi-editable:hover{border-color:var(--gold)88}
 .kpi-editable:hover .kpi-label::after{content:' ✎';font-size:9px;opacity:.6}
@@ -100,21 +100,21 @@ body.ptr-pulling{transition:transform .1s}
 .to-progress-fill{height:100%;border-radius:2px;transition:width .5s ease}
 
 /* Данные авто */
-.car-details-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:10px 0;border-top:1px solid var(--border);margin-top:4px}
+.car-details-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:12px 0;border-top:1px solid var(--border);margin-top:8px}
 .car-details-label{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
 .car-details-chev{color:var(--muted);font-size:14px;transition:transform .2s;margin-left:auto}
 .car-details-chev.open{transform:rotate(180deg)}
-.car-details{display:none;padding-top:12px}
+.car-details{display:none;padding-top:12px;padding-bottom:4px}
 .car-details.open{display:block}
 .tech-status-badge{width:10px;height:10px;border-radius:50%;flex-shrink:0;display:none}
 .tech-status-badge.show{display:inline-block}
 .tech-status-badge.ok{background:#2ecc71;box-shadow:0 0 6px #2ecc7188}
 .tech-status-badge.warn{background:#f39c12;box-shadow:0 0 6px #f39c1288}
 .tech-status-badge.crit{background:#e74c3c;box-shadow:0 0 6px #e74c3c88}
-.car-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.car-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
 @media(max-width:480px){.car-grid{grid-template-columns:1fr 1fr}}
-.cf{background:var(--accent-bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px}
-.cl{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:3px}
+.cf{background:var(--accent-bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.cl{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px}
 .cv{font-size:13px;font-weight:400;color:var(--text)}
 .cv.mono{font-family:'JetBrains Mono',monospace;letter-spacing:.5px;font-size:11px;cursor:text;user-select:all}
 .cv.mono:hover{color:var(--gold-l)}
@@ -500,17 +500,17 @@ tr.hl-row td:first-child{border-left:2px solid var(--gold)}
     </div>
     <div class="modal-body">
       <div class="settings-section-title" style="margin-bottom:12px">Последняя замена</div>
-      <div class="tech-modal-grid">
+      <div class="tech-modal-grid" style="margin-bottom:16px">
         <div><label class="slabel">Дата замены</label><input class="sf" type="date" id="te-date"></div>
         <div><label class="slabel">Пробег при замене, км</label><input class="sf" type="number" id="te-mil" placeholder="225000"></div>
       </div>
-      <div class="settings-section-title" style="margin-bottom:12px;margin-top:16px">Интервал замены</div>
-      <div class="tech-modal-grid" id="te-interval-wrap">
+      <div class="settings-section-title" style="margin-bottom:12px">Интервал замены</div>
+      <div class="tech-modal-grid" id="te-interval-wrap" style="margin-bottom:8px">
         <div id="te-km-wrap"><label class="slabel">Интервал, км</label><input class="sf" type="number" id="te-km" placeholder="60000"></div>
         <div id="te-mo-wrap"><label class="slabel">Интервал, месяцев</label><input class="sf" type="number" id="te-mo" placeholder="24"></div>
       </div>
-      <div style="margin-top:4px;margin-bottom:16px">
-        <label class="slabel" style="color:var(--muted);font-size:9px" id="te-interval-hint"></label>
+      <div style="margin-bottom:20px">
+        <label class="slabel" style="color:var(--muted);font-size:9px;font-style:italic" id="te-interval-hint"></label>
       </div>
       <button class="save-settings-btn" onclick="techEditSave()">Сохранить</button>
     </div>
