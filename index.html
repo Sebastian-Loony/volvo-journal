@@ -272,7 +272,33 @@ td:nth-child(n+2) .tdi{text-align:center}
 .toast.show{opacity:1}
 @media(min-width:768px){.toast{bottom:24px;right:24px}}
 
-/* ═══════════ SEARCH ═══════════ */
+/* ═══════════ ТЕХ БЛОК ═══════════ */
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:12px}
+@media(max-width:480px){.tech-grid{grid-template-columns:1fr}}
+.tech-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.tech-card:hover{border-color:var(--gold)66}
+.tech-card.status-ok{border-color:rgba(46,204,113,0.3)}
+.tech-card.status-warn{border-color:rgba(243,156,18,0.5);background:rgba(243,156,18,0.04)}
+.tech-card.status-crit{border-color:rgba(231,76,60,0.5);background:rgba(231,76,60,0.04)}
+.tech-card-header{padding:8px 12px;background:var(--card2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.tech-card-name{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.tech-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tech-status-dot.ok{background:#2ecc71}
+.tech-status-dot.warn{background:#f39c12}
+.tech-status-dot.crit{background:#e74c3c}
+.tech-status-dot.none{background:var(--border)}
+.tech-card-body{padding:10px 12px}
+.tech-last{font-size:11px;color:var(--muted);margin-bottom:4px}
+.tech-last span{color:var(--text);font-weight:500}
+.tech-next{font-size:12px;font-weight:600;color:var(--gold-l)}
+.tech-next.warn{color:#f39c12}
+.tech-next.crit{color:#e74c3c}
+.tech-empty{font-size:12px;color:var(--muted);font-style:italic}
+.tech-edit-hint{font-size:9px;color:var(--muted);margin-top:4px;opacity:.7}
+
+/* Модал редактирования тех карточки */
+.tech-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:400px){.tech-modal-grid{grid-template-columns:1fr}}
 .search-wrap{margin-bottom:14px}
 .search-input-wrap{position:relative;display:flex;align-items:center;margin-bottom:10px}
 .search-icon{position:absolute;left:11px;font-size:14px;color:var(--muted);pointer-events:none}
@@ -430,6 +456,58 @@ tr.hl-row td:first-child{border-left:2px solid var(--gold)}
   </div>
   <div class="car-details" id="car-details">
     <div class="car-grid" id="car-grid"></div>
+  </div>
+
+  <!-- ТЕХ БЛОК -->
+  <div class="car-details-toggle" onclick="toggleTechBlock()">
+    <span class="car-details-label">&#128295; Тех блок</span>
+    <span class="car-details-chev" id="tech-chev">&#8964;</span>
+  </div>
+  <div class="car-details" id="tech-block">
+    <div id="tech-grid"></div>
+  </div>
+</div>
+
+<!-- УВЕДОМЛЕНИЕ ТЕХ БЛОКА -->
+<div class="modal-overlay" id="tech-notify-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">&#128269; Найдена запись</div>
+      <button class="modal-close" onclick="techNotifyClose()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div id="tech-notify-text" style="font-size:14px;color:var(--text);margin-bottom:20px;line-height:1.6"></div>
+      <div style="display:flex;gap:10px">
+        <button class="save-settings-btn" style="flex:1" onclick="techNotifyAccept()">Да, внести</button>
+        <button class="save-settings-btn" style="flex:1;background:var(--card2);color:var(--muted);border:1px solid var(--border)" onclick="techNotifyClose()">Нет</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- РЕДАКТИРОВАНИЕ ТЕХ КАРТОЧКИ -->
+<div class="modal-overlay" id="tech-edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="tech-edit-title">Редактировать</div>
+      <button class="modal-close" onclick="techEditClose()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-section-title" style="margin-bottom:12px">Последняя замена</div>
+      <div class="tech-modal-grid">
+        <div><label class="slabel">Дата замены</label><input class="sf" type="date" id="te-date"></div>
+        <div><label class="slabel">Пробег при замене, км</label><input class="sf" type="number" id="te-mil" placeholder="225000"></div>
+      </div>
+      <div class="settings-section-title" style="margin-bottom:12px;margin-top:16px">Интервал замены</div>
+      <div class="tech-modal-grid" id="te-interval-wrap">
+        <div id="te-km-wrap"><label class="slabel">Интервал, км</label><input class="sf" type="number" id="te-km" placeholder="60000"></div>
+        <div id="te-mo-wrap"><label class="slabel">Интервал, месяцев</label><input class="sf" type="number" id="te-mo" placeholder="24"></div>
+      </div>
+      <div style="margin-top:4px;margin-bottom:16px">
+        <label class="slabel" style="color:var(--muted);font-size:9px" id="te-interval-hint"></label>
+      </div>
+      <button class="save-settings-btn" onclick="techEditSave()">Сохранить</button>
+    </div>
   </div>
 </div>
 
@@ -1253,7 +1331,200 @@ async function init(){
 }
 async function impXLSX(input){cdd();const file=input.files[0];if(!file)return;try{const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:'array'});const ws=wb.Sheets['\u0421\u0432\u043e\u0434\u043a\u0430']||wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});const hi=rows.findIndex(r=>r[0]==='\u0414\u0430\u0442\u0430');if(hi<0){toast('\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c \u0444\u043e\u0440\u043c\u0430\u0442');return;}const imp=rows.slice(hi+1).filter(r=>r[0]&&r[1]).map((r,i)=>({id:Date.now()+i,date:r[0]||'',type:r[1]||'\u0422\u041e',mileage:String(r[2]||''),parts:[],works:[],recommendations:r[6]||''}));for(const r of imp)await dbSave(r);await init();toast('Excel: '+imp.length+' \u0437\u0430\u043f. \u2713');}catch(e){toast('\u041e\u0448\u0438\u0431\u043a\u0430 Excel');}input.value='';}
 
-// ── PULL TO REFRESH ───────────────────────────────────────────────
+// ── ТЕХ БЛОК ─────────────────────────────────────────────────────
+const TECH_ITEMS=[
+  {id:'grm',   name:'ГРМ',                    byKm:true,  byDate:false, defKm:90000,  defMo:0,  icon:'⚙️'},
+  {id:'plugs', name:'Свечи',                  byKm:true,  byDate:false, defKm:30000,  defMo:0,  icon:'⚡'},
+  {id:'brake', name:'Тормозная жидкость',     byKm:true,  byDate:true,  defKm:60000,  defMo:24, icon:'🛑'},
+  {id:'cool',  name:'Охлаждающая жидкость',   byKm:true,  byDate:true,  defKm:90000,  defMo:36, icon:'🌡️'},
+  {id:'gur',   name:'Жидкость ГУР',           byKm:true,  byDate:true,  defKm:60000,  defMo:36, icon:'🔄'},
+  {id:'gearoil',name:'Масло в КПП',           byKm:true,  byDate:false, defKm:60000,  defMo:0,  icon:'🔧'},
+  {id:'bpf',   name:'Колодки передние',       byKm:true,  byDate:false, defKm:40000,  defMo:0,  icon:'🔴'},
+  {id:'bpr',   name:'Колодки задние',         byKm:true,  byDate:false, defKm:60000,  defMo:0,  icon:'🔴'},
+  {id:'bdf',   name:'Диски передние',         byKm:true,  byDate:false, defKm:100000, defMo:0,  icon:'⭕'},
+  {id:'bdr',   name:'Диски задние',           byKm:true,  byDate:false, defKm:120000, defMo:0,  icon:'⭕'},
+];
+
+// Ключевые слова для авто-поиска в записях
+const TECH_KEYWORDS={
+  grm:['грм','ремень грм','цепь грм','газораспределительный'],
+  plugs:['свеч','spark plug'],
+  brake:['тормозная жидкость','dot ','brake fluid'],
+  cool:['антифриз','охлаждающая','тосол','coolant'],
+  gur:['гур','рулевого управления','power steering'],
+  gearoil:['масло кпп','масло в кпп','трансмиссионное масло','gearbox oil'],
+  bpf:['колодки перед','передние колодки','brake pad front'],
+  bpr:['колодки зад','задние колодки','brake pad rear'],
+  bdf:['диск перед','передние диски','brake disc front'],
+  bdr:['диск зад','задние диски','brake disc rear'],
+};
+
+function getTechData(){return CFG.techBlock||{};}
+function setTechItem(id,data){
+  if(!CFG.techBlock)CFG.techBlock={};
+  CFG.techBlock[id]={...CFG.techBlock[id],...data};
+}
+
+function toggleTechBlock(){
+  const d=document.getElementById('tech-block');
+  const c=document.getElementById('tech-chev');
+  const open=d.classList.toggle('open');
+  c.classList.toggle('open',open);
+  if(open){renderTechBlock();checkTechNotify();}
+}
+
+function getCurMil(){
+  const m=parseInt(CFG.curMileage)||0;
+  if(m>0)return m;
+  const all=R.filter(r=>r.mileage).map(r=>parseInt(r.mileage)||0);
+  return all.length?Math.max(...all):0;
+}
+
+function techStatus(item){
+  const d=getTechData()[item.id];
+  if(!d||(!d.mil&&!d.date))return'none';
+  const curMil=getCurMil();
+  const td=getTechData()[item.id];
+  const intKm=td.intKm||item.defKm;
+  const intMo=td.intMo||item.defMo;
+  let remKm=Infinity,remDays=Infinity;
+  if(item.byKm&&td.mil&&intKm){remKm=(parseInt(td.mil)+intKm)-curMil;}
+  if(item.byDate&&td.date&&intMo){
+    const nxt=new Date(td.date);nxt.setMonth(nxt.getMonth()+intMo);
+    remDays=Math.round((nxt-new Date())/(1000*60*60*24));
+  }
+  const rem=Math.min(remKm===Infinity?9999999:remKm, remDays===Infinity?9999999:remDays*30);
+  if(rem<0)return'crit';
+  if(remKm<2000||remDays<30)return'warn';
+  return'ok';
+}
+
+function techNextText(item){
+  const td=getTechData()[item.id];
+  if(!td||(!td.mil&&!td.date))return null;
+  const curMil=getCurMil();
+  const intKm=td.intKm||item.defKm;
+  const intMo=td.intMo||item.defMo;
+  let parts=[];
+  if(item.byKm&&td.mil&&intKm){
+    const next=parseInt(td.mil)+intKm;
+    const rem=next-curMil;
+    const st=rem<0?'crit':rem<2000?'warn':'ok';
+    parts.push({text:(rem>0?'через '+rem.toLocaleString('ru-RU')+' км':'просрочено на '+Math.abs(rem).toLocaleString('ru-RU')+' км'),st});
+  }
+  if(item.byDate&&td.date&&intMo){
+    const nxt=new Date(td.date);nxt.setMonth(nxt.getMonth()+intMo);
+    const days=Math.round((nxt-new Date())/(1000*60*60*24));
+    const st=days<0?'crit':days<30?'warn':'ok';
+    parts.push({text:(days>0?'через '+days+' дн. ('+fmtDate(nxt.toISOString().slice(0,10))+')':'дата истекла'),st});
+  }
+  return parts;
+}
+
+function renderTechBlock(){
+  const tg=document.getElementById('tech-grid');
+  tg.className='tech-grid';
+  tg.innerHTML=TECH_ITEMS.map(item=>{
+    const td=getTechData()[item.id];
+    const st=techStatus(item);
+    const nxt=techNextText(item);
+    const lastText=td&&(td.date||td.mil)?
+      `${td.date?'<span>'+fmtDate(td.date)+'</span>':''}${td.date&&td.mil?' · ':''}${td.mil?'<span>'+parseInt(td.mil).toLocaleString('ru-RU')+' км</span>':''}`:null;
+    return`<div class="tech-card status-${st}" onclick="techEdit('${item.id}')">
+      <div class="tech-card-header">
+        <span class="tech-card-name">${item.icon} ${item.name}</span>
+        <span class="tech-status-dot ${st}"></span>
+      </div>
+      <div class="tech-card-body">
+        ${lastText?`<div class="tech-last">Замена: ${lastText}</div>`:'<div class="tech-empty">Нет данных</div>'}
+        ${nxt&&nxt.length?nxt.map(n=>`<div class="tech-next ${n.st}">${n.text}</div>`).join(''):''}
+        <div class="tech-edit-hint">нажмите для редактирования</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Редактирование тех карточки
+let techEditId=null;
+function techEdit(id){
+  techEditId=id;
+  const item=TECH_ITEMS.find(x=>x.id===id);
+  const td=getTechData()[id]||{};
+  document.getElementById('tech-edit-title').textContent=item.icon+' '+item.name;
+  document.getElementById('te-date').value=td.date||'';
+  document.getElementById('te-mil').value=td.mil||'';
+  document.getElementById('te-km').value=td.intKm||item.defKm||'';
+  const moWrap=document.getElementById('te-mo-wrap');
+  moWrap.style.display=item.byDate?'':'none';
+  document.getElementById('te-mo').value=td.intMo||item.defMo||'';
+  const hint=item.byKm&&item.byDate?'Срабатывает что наступит раньше — пробег или дата':
+    item.byKm?'Интервал только по пробегу':'Интервал только по дате';
+  document.getElementById('te-interval-hint').textContent=hint;
+  document.getElementById('tech-edit-modal').classList.add('open');
+}
+function techEditClose(){document.getElementById('tech-edit-modal').classList.remove('open');techEditId=null;}
+async function techEditSave(){
+  if(!techEditId)return;
+  const item=TECH_ITEMS.find(x=>x.id===techEditId);
+  setTechItem(techEditId,{
+    date:document.getElementById('te-date').value||'',
+    mil:document.getElementById('te-mil').value||'',
+    intKm:parseInt(document.getElementById('te-km').value)||item.defKm,
+    intMo:item.byDate?(parseInt(document.getElementById('te-mo').value)||item.defMo):0,
+  });
+  await dbSaveCFG();
+  techEditClose();
+  renderTechBlock();
+  toast('Сохранено \u2713');
+}
+
+// Авто-поиск совпадений в записях
+let techNotifyQueue=[],techNotifyIdx=0,techNotifyPending=null;
+function checkTechNotify(){
+  techNotifyQueue=[];
+  const td=getTechData();
+  for(const item of TECH_ITEMS){
+    if(td[item.id]&&(td[item.id].date||td[item.id].mil))continue; // уже заполнено
+    const kws=TECH_KEYWORDS[item.id]||[];
+    for(const r of R){
+      const allText=[
+        ...r.parts.map(p=>p.name+' '+p.brand),
+        ...r.works.map(w=>w.name)
+      ].join(' ').toLowerCase();
+      if(kws.some(kw=>allText.includes(kw))){
+        techNotifyQueue.push({item,record:r,text:allText});
+        break;
+      }
+    }
+  }
+  if(techNotifyQueue.length){techNotifyIdx=0;showTechNotify();}
+}
+function showTechNotify(){
+  if(techNotifyIdx>=techNotifyQueue.length)return;
+  const q=techNotifyQueue[techNotifyIdx];
+  techNotifyPending=q;
+  const r=q.record;
+  document.getElementById('tech-notify-text').innerHTML=
+    `Найдена запись о <b>${q.item.name}</b>:<br><br>`+
+    `📅 ${fmtDate(r.date)} &nbsp;·&nbsp; ${r.mileage?parseInt(r.mileage).toLocaleString('ru-RU')+' км':''}<br><br>`+
+    `Хотите внести эти данные в Тех блок?`;
+  document.getElementById('tech-notify-modal').classList.add('open');
+}
+function techNotifyClose(){
+  document.getElementById('tech-notify-modal').classList.remove('open');
+  techNotifyIdx++;
+  if(techNotifyIdx<techNotifyQueue.length)setTimeout(showTechNotify,300);
+  techNotifyPending=null;
+}
+async function techNotifyAccept(){
+  if(!techNotifyPending)return;
+  const {item,record}=techNotifyPending;
+  setTechItem(item.id,{date:record.date||'',mil:record.mileage||'',intKm:item.defKm,intMo:item.defMo});
+  await dbSaveCFG();
+  techNotifyClose();
+  renderTechBlock();
+  toast(item.name+' обновлено \u2713');
+}
 (function(){
   const THRESHOLD = 80; // px для срабатывания
   const ptr = document.getElementById('ptr');
