@@ -188,6 +188,7 @@ td:nth-child(n+2) .tdi{text-align:center}
 .tdi{background:transparent;border:none;color:var(--text);padding:0;font-size:13px;font-weight:400;width:100%;outline:none;resize:none;overflow:hidden;display:block;line-height:1.4;text-align:inherit}
 .tdi:focus{color:var(--gold-l)}
 .tdi-name{word-break:break-word;white-space:pre-wrap;vertical-align:top;text-align:left}
+.tdi-brand{white-space:normal;word-break:break-word;overflow-wrap:break-word}
 .ib{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 4px;border-radius:4px;min-width:26px;min-height:26px;display:block}
 .ib:hover{color:#e74c3c}
 
@@ -201,11 +202,16 @@ td:nth-child(n+2) .tdi{text-align:center}
 
 /* Мобильный — колонки по содержимому, горизонтальная прокрутка */
 @media(max-width:767px){
-  table{table-layout:auto;min-width:480px}
+  table{table-layout:auto;min-width:540px}
   td,th{white-space:nowrap}
+  /* Наименование — перенос */
   td:first-child,th:first-child{min-width:110px;max-width:150px;white-space:normal;text-align:left}
-  td:nth-child(2),th:nth-child(2){min-width:75px}
-  td:nth-child(3),th:nth-child(3){min-width:80px}
+  /* Бренд — шире, перенос по словам */
+  td:nth-child(2),th:nth-child(2){min-width:100px;white-space:normal;word-break:break-word}
+  td:nth-child(2) .tdi{white-space:normal;word-break:break-word}
+  /* Артикул — шире, перенос */
+  td:nth-child(3),th:nth-child(3){min-width:95px;white-space:normal;word-break:break-word}
+  td:nth-child(3) .tdi{white-space:normal;word-break:break-word}
   td:nth-child(4),th:nth-child(4){min-width:50px;text-align:center}
   td:nth-child(5),th:nth-child(5){min-width:72px;text-align:center}
   td:nth-child(6),th:nth-child(6){min-width:68px;text-align:center}
@@ -216,7 +222,12 @@ td:nth-child(n+2) .tdi{text-align:center}
   th{font-size:8px;padding:6px 5px;letter-spacing:.5px}
   th:first-child{text-align:left}
   td:nth-child(4) .tdi{text-align:center}
-  td:nth-child(5) .tdi{text-align:right}
+  td:nth-child(5) .tdi{text-align:center}
+}
+/* ПК — бренд и артикул авто по ширине содержимого */
+@media(min-width:768px){
+  td:nth-child(2),th:nth-child(2){white-space:normal;word-break:break-word;min-width:80px}
+  td:nth-child(3),th:nth-child(3){white-space:normal;word-break:break-word;min-width:85px}
 }
 .smb{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 14px;margin-top:6px;letter-spacing:.3px}
 .smb:hover{border-color:var(--gold);color:var(--gold-l)}
@@ -917,7 +928,7 @@ function pr(rid,p,q=''){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
         onkeydown="acKey(event,'${p.id}')">${esc(p.name)}</textarea>
       <div class="ac-list" id="ac${p.id}" style="display:none"></div>
     </div></td>
-    <td><input class="tdi" id="pb${p.id}" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
+    <td><input class="tdi tdi-brand" value="${esc(p.brand)}" placeholder="Mann" oninput="uP(${rid},'${p.id}','brand',this.value)"></td>
     <td><input class="tdi" id="pa${p.id}" value="${esc(p.article)}" placeholder="W712/75" oninput="uP(${rid},'${p.id}','article',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${p.qty||1}" oninput="uP(${rid},'${p.id}','qty',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${esc(p.price)}" placeholder="0" oninput="uP(${rid},'${p.id}','price',this.value)"></td>
