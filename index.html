@@ -304,6 +304,8 @@ td:nth-child(n+2) .tdi{text-align:center}
 .tech-next.crit{color:#e74c3c}
 .tech-empty{font-size:12px;color:var(--muted);font-style:italic}
 .tech-edit-hint{font-size:9px;color:var(--muted);margin-top:6px;opacity:.6}
+.tech-next-target{display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:1px;margin-bottom:4px}
+.tech-next-target{display:block;font-size:11px;font-weight:400;color:var(--muted);margin-top:2px;margin-bottom:2px}
 
 /* ПК — крупнее */
 @media(min-width:768px){
@@ -481,9 +483,9 @@ tr.hl-row td:first-child{border-left:2px solid var(--gold)}
     </div>
   </div>
 
-  <!-- ТЕХ БЛОК -->
+  <!-- РЕГЛАМЕНТНОЕ ОБСЛУЖИВАНИЕ -->
   <div class="car-details-toggle" onclick="toggleTechBlock()">
-    <span class="car-details-label" style="color:var(--text)">ТЕХ БЛОК</span>
+    <span class="car-details-label" style="color:var(--text);white-space:normal;line-height:1.3">РЕГЛАМЕНТНОЕ ОБСЛУЖИВАНИЕ</span>
     <span class="tech-status-badge" id="tech-badge"></span>
     <span class="car-details-chev" id="tech-chev">&#8964;</span>
   </div>
@@ -1637,12 +1639,15 @@ function techNextText(item){
   const curMil=getCurMil();
   const intKm=td.intKm||item.defKm;
   const intMo=td.intMo||item.defMo;
+  const noMilTarget=['bpf','bpr','bdf','bdr']; // для колодок и дисков не показываем
   let parts=[];
   if(item.byKm&&td.mil&&intKm){
     const next=parseInt(td.mil)+intKm;
     const rem=next-curMil;
     const st=rem<0?'crit':rem<2000?'warn':'ok';
-    parts.push({text:(rem>0?'через '+rem.toLocaleString('ru-RU')+' км':'просрочено на '+Math.abs(rem).toLocaleString('ru-RU')+' км'),st});
+    const remText=rem>0?'через '+rem.toLocaleString('ru-RU')+' км':'просрочено на '+Math.abs(rem).toLocaleString('ru-RU')+' км';
+    const targetText=!noMilTarget.includes(item.id)?'<span class="tech-next-target">на пробеге '+next.toLocaleString('ru-RU')+' км</span>':'';
+    parts.push({text:remText, extra:targetText, st});
   }
   if(item.byDate&&td.date&&intMo){
     const nxt=new Date(td.date);nxt.setMonth(nxt.getMonth()+intMo);
@@ -1689,7 +1694,7 @@ function renderTechBlock(){
       </div>
       <div class="tech-card-body">
         ${lastText?`<div class="tech-last">Замена: ${lastText}</div>`:'<div class="tech-empty">Нет данных</div>'}
-        ${nxt&&nxt.length?nxt.map(n=>`<div class="tech-next ${n.st}">${n.text}</div>`).join(''):''}
+        ${nxt&&nxt.length?nxt.map(n=>`<div class="tech-next ${n.st}">${n.text}</div>${n.extra||''}`).join(''):''}
         <div class="tech-edit-hint">нажмите для редактирования</div>
       </div>
     </div>`;
