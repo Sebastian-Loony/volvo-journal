@@ -72,7 +72,7 @@ body.ptr-pulling{transition:transform .1s}
 /* ═══════════ DASHBOARD ═══════════ */
 .dashboard{background:var(--dash-bg);border-bottom:2px solid var(--border);padding:clamp(20px,4vw,32px) clamp(16px,4vw,32px) clamp(18px,3vw,28px);position:relative;overflow:hidden}
 @media(min-width:768px){
-  .dashboard{max-width:1400px;margin:0 auto;border-bottom:none;border-radius:0}
+  .dashboard{max-width:1100px;margin:0 auto;border-bottom:none;border-radius:0}
 }
 .dash-deco{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold-l),var(--gold),transparent)}
 .dash-deco2{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
@@ -124,7 +124,7 @@ body.ptr-pulling{transition:transform .1s}
 .copy-hint{font-size:9px;color:var(--muted);margin-top:2px}
 
 /* ═══════════ MAIN ═══════════ */
-.main{max-width:1400px;margin:0 auto;padding:20px clamp(12px,3vw,32px) 0}
+.main{max-width:1100px;margin:0 auto;padding:20px clamp(12px,3vw,32px) 0}
 
 /* ═══════════ TOOLBAR ═══════════ */
 .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
@@ -263,6 +263,14 @@ td:nth-child(n+2) .tdi{text-align:center}
 }
 
 
+/* Таблица Работ — 4 колонки, без горизонтального скролла */
+.works-table{table-layout:auto;width:100%;min-width:0}
+.works-table td:first-child,.works-table th:first-child{width:100%;text-align:left;white-space:normal;word-break:break-word}
+.works-table td:nth-child(2),.works-table th:nth-child(2){width:1%;white-space:nowrap;padding-left:12px}
+.works-table td:nth-child(3),.works-table th:nth-child(3){width:1%;white-space:nowrap;padding-left:12px}
+.works-table td:nth-child(4),.works-table th:nth-child(4){width:1%;white-space:nowrap;padding-left:12px}
+.works-table td:last-child,.works-table th:last-child{width:36px}
+@media(max-width:767px){.works-table{min-width:260px}}
 .smb{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 14px;margin-top:6px;letter-spacing:.3px;cursor:pointer}
 .smb:hover{border-color:var(--gold);color:var(--gold-l)}
 .tsum{text-align:right;margin-top:5px;font-size:12px;font-weight:400;color:var(--muted)}.tsum span{color:var(--gold-l);font-weight:700}
@@ -285,7 +293,7 @@ td:nth-child(n+2) .tdi{text-align:center}
 .toast.show{opacity:1}
 @media(min-width:768px){.toast{bottom:24px;right:24px}}
 
-/* ═══════════ ТЕХ БЛОК ═══════════ */
+/* ═══════════ РЕГЛАМЕНТНОЕ ОБСЛУЖИВАНИЕ ═══════════ */
 .tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:12px}
 @media(min-width:768px){.tech-grid{grid-template-columns:repeat(4,1fr);gap:14px}}
 @media(max-width:480px){.tech-grid{grid-template-columns:1fr}}
@@ -502,7 +510,7 @@ tr.hl-row td:first-child{border-left:2px solid var(--gold)}
   </div>
 </div>
 
-<!-- УВЕДОМЛЕНИЕ ТЕХ БЛОКА -->
+<!-- УВЕДОМЛЕНИЕ РЕГЛАМЕНТНОГО ОБСЛУЖИВАНИЯ -->
 <div class="modal-overlay" id="tech-notify-modal">
   <div class="modal" style="max-width:400px">
     <div class="modal-header">
@@ -1113,7 +1121,7 @@ function card(r, q=''){
       <div class="sl"><div class="sl-left"><span class="sl-icon">&#128296;</span>\u0420\u0430\u0431\u043e\u0442\u044b</div><span class="sl-count">${r.works.filter(w=>w.name).length} \u043f\u043e\u0437.</span></div>
     </div>
     <div class="sec-body">
-      <div class="tw"><table>
+      <div class="tw"><table class="works-table">
         <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c, &#8381;</th><th class="gold">\u0418\u0442\u043e\u0433\u043e, &#8381;</th><th></th></tr></thead>
         <tbody id="wt${r.id}">${r.works.map(w=>wr(r.id,w,q)).join('')}</tbody>
       </table></div>
@@ -1384,7 +1392,7 @@ async function init(){
 }
 async function impXLSX(input){cdd();const file=input.files[0];if(!file)return;try{const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:'array'});const ws=wb.Sheets['\u0421\u0432\u043e\u0434\u043a\u0430']||wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});const hi=rows.findIndex(r=>r[0]==='\u0414\u0430\u0442\u0430');if(hi<0){toast('\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0440\u0430\u0441\u043f\u043e\u0437\u043d\u0430\u0442\u044c \u0444\u043e\u0440\u043c\u0430\u0442');return;}const imp=rows.slice(hi+1).filter(r=>r[0]&&r[1]).map((r,i)=>({id:Date.now()+i,date:r[0]||'',type:r[1]||'\u0422\u041e',mileage:String(r[2]||''),parts:[],works:[],recommendations:r[6]||''}));for(const r of imp)await dbSave(r);await init();toast('Excel: '+imp.length+' \u0437\u0430\u043f. \u2713');}catch(e){toast('\u041e\u0448\u0438\u0431\u043a\u0430 Excel');}input.value='';}
 
-// ── ТЕХ БЛОК ─────────────────────────────────────────────────────
+// ── РЕГЛАМЕНТНОЕ ОБСЛУЖИВАНИЕ ────────────────────────────────────
 const TECH_ICONS={
   grm:`<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
     <!-- Звёздочка ГРМ большая -->
