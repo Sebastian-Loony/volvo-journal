@@ -225,9 +225,10 @@ td:nth-child(n+2) .tdi{text-align:center}
   table{table-layout:auto}
   /* Запчасти: наименование — всё свободное место */
   td:first-child,th:first-child{width:100%;text-align:left}
-  /* Бренд и артикул — по содержимому */
-  td:nth-child(2),th:nth-child(2){width:1%;white-space:nowrap;padding-left:12px;word-break:keep-all}
-  td:nth-child(3),th:nth-child(3){width:1%;white-space:nowrap;padding-left:12px;word-break:keep-all}
+  /* Бренд — фиксированная ширина, без переноса */
+  td:nth-child(2),th:nth-child(2){width:110px;white-space:nowrap;padding-left:12px}
+  /* Артикул — шире, без переноса */
+  td:nth-child(3),th:nth-child(3){width:120px;white-space:nowrap;padding-left:12px}
   /* Кол-во, цена, итого — минимальные */
   td:nth-child(4),th:nth-child(4){width:1%;white-space:nowrap;padding-left:12px}
   td:nth-child(5),th:nth-child(5){width:1%;white-space:nowrap;padding-left:12px}
