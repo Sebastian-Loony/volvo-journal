@@ -232,6 +232,7 @@ td:nth-child(n+2) .tdi{text-align:center}
   td:nth-child(4),th:nth-child(4){width:1%;white-space:nowrap;padding-left:12px}
   td:nth-child(5),th:nth-child(5){width:1%;white-space:nowrap;padding-left:12px}
   td:nth-child(6),th:nth-child(6){width:1%;white-space:nowrap;padding-left:12px}
+  td:last-child,th:last-child{width:1%;white-space:nowrap;padding-left:4px}
   /* Наименование — перенос по словам, растёт вниз */
   .tdi-name{white-space:pre-wrap;word-break:break-word;overflow:visible}
 }
@@ -270,7 +271,11 @@ td:nth-child(n+2) .tdi{text-align:center}
 .works-table td:nth-child(3),.works-table th:nth-child(3){width:1%;white-space:nowrap;padding-left:12px}
 .works-table td:nth-child(4),.works-table th:nth-child(4){width:1%;white-space:nowrap;padding-left:12px}
 .works-table td:last-child,.works-table th:last-child{width:36px}
-@media(max-width:767px){.works-table{min-width:260px}}
+/* Переопределяем min-width внутри мобильного медиазапроса чтобы выиграть у общего table правила */
+@media(max-width:767px){
+  .works-table{min-width:260px!important}
+  .works-table td:first-child,.works-table th:first-child{min-width:0;max-width:none}
+}
 .smb{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 14px;margin-top:6px;letter-spacing:.3px;cursor:pointer}
 .smb:hover{border-color:var(--gold);color:var(--gold-l)}
 .tsum{text-align:right;margin-top:5px;font-size:12px;font-weight:400;color:var(--muted)}.tsum span{color:var(--gold-l);font-weight:700}
