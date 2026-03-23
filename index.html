@@ -208,7 +208,7 @@ td:nth-child(n+2) .tdi{text-align:center}
 .tdi{background:transparent;border:none;color:var(--text);padding:0;font-size:13px;font-weight:400;width:100%;outline:none;resize:none;overflow:hidden;display:block;line-height:1.4;text-align:inherit}
 .tdi:focus{color:var(--gold-l)}
 .tdi-name{word-break:break-word;white-space:pre-wrap;vertical-align:top;text-align:left}
-.tdi-brand{white-space:normal;word-break:break-word;overflow-wrap:break-word}
+.tdi-brand{white-space:nowrap;word-break:keep-all}
 .ib{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 4px;border-radius:4px;min-width:26px;min-height:26px;display:block}
 .ib:hover{color:#e74c3c}
 .sec-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 4px}
@@ -226,11 +226,14 @@ td:nth-child(n+2) .tdi{text-align:center}
 /* ПК — авто layout, наименование широкое, остальные по содержимому */
 @media(min-width:768px){
   table{table-layout:auto}
-  td:first-child,th:first-child{min-width:220px;width:28%}
-  td:nth-child(2),th:nth-child(2){white-space:normal;word-break:break-word;min-width:90px}
-  td:nth-child(3),th:nth-child(3){white-space:normal;word-break:break-word;min-width:90px}
-  .tdi-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .tdi-name:focus{white-space:pre-wrap;overflow:visible;text-overflow:unset;height:auto}
+  td:first-child,th:first-child{width:40%;text-align:left}
+  td:nth-child(2),th:nth-child(2){width:1%;white-space:nowrap;padding-left:12px}
+  td:nth-child(3),th:nth-child(3){width:1%;white-space:nowrap;padding-left:12px}
+  td:nth-child(4),th:nth-child(4){width:1%;white-space:nowrap;padding-left:12px}
+  td:nth-child(5),th:nth-child(5){width:1%;white-space:nowrap;padding-left:12px}
+  td:nth-child(6),th:nth-child(6){width:1%;white-space:nowrap;padding-left:12px}
+  /* Наименование — перенос по словам, растёт вниз */
+  .tdi-name{white-space:pre-wrap;word-break:break-word;overflow:visible}
 }
 
 /* Мобильный — колонки по содержимому, горизонтальная прокрутка */
@@ -259,7 +262,8 @@ td:nth-child(n+2) .tdi{text-align:center}
   td:nth-child(5) .tdi{text-align:center}
 }
 
-.smb{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 14px;margin-top:6px;letter-spacing:.3px}
+
+.smb{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 14px;margin-top:6px;letter-spacing:.3px;cursor:pointer}
 .smb:hover{border-color:var(--gold);color:var(--gold-l)}
 .tsum{text-align:right;margin-top:5px;font-size:12px;font-weight:400;color:var(--muted)}.tsum span{color:var(--gold-l);font-weight:700}
 
