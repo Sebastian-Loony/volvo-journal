@@ -71,6 +71,9 @@ body.ptr-pulling{transition:transform .1s}
 
 /* ═══════════ DASHBOARD ═══════════ */
 .dashboard{background:var(--dash-bg);border-bottom:2px solid var(--border);padding:clamp(20px,4vw,32px) clamp(16px,4vw,32px) clamp(18px,3vw,28px);position:relative;overflow:hidden}
+@media(min-width:768px){
+  .dashboard{max-width:1400px;margin:0 auto;border-bottom:none;border-radius:0}
+}
 .dash-deco{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold-l),var(--gold),transparent)}
 .dash-deco2{position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
 
@@ -121,7 +124,7 @@ body.ptr-pulling{transition:transform .1s}
 .copy-hint{font-size:9px;color:var(--muted);margin-top:2px}
 
 /* ═══════════ MAIN ═══════════ */
-.main{max-width:960px;margin:0 auto;padding:20px clamp(12px,3vw,24px) 0}
+.main{max-width:1400px;margin:0 auto;padding:20px clamp(12px,3vw,32px) 0}
 
 /* ═══════════ TOOLBAR ═══════════ */
 .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
@@ -234,8 +237,9 @@ td:nth-child(n+2) .tdi{text-align:center}
 @media(max-width:767px){
   table{table-layout:auto;min-width:540px}
   td,th{white-space:nowrap}
-  /* Наименование — перенос */
-  td:first-child,th:first-child{min-width:110px;max-width:150px;white-space:normal;text-align:left}
+  /* Наименование — перенос по словам, растёт вниз */
+  td:first-child,th:first-child{min-width:110px;white-space:normal;word-break:break-word;text-align:left}
+  td:first-child .tdi-name{white-space:pre-wrap;word-break:break-word;width:100%}
   /* Бренд — шире, перенос по словам */
   td:nth-child(2),th:nth-child(2){min-width:100px;white-space:normal;word-break:break-word}
   td:nth-child(2) .tdi{white-space:normal;word-break:break-word}
@@ -1106,7 +1110,7 @@ function card(r, q=''){
     </div>
     <div class="sec-body">
       <div class="tw"><table>
-        <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c, &#8381;</th><th></th></tr></thead>
+        <thead><tr><th>\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b</th><th>\u041a\u043e\u043b-\u0432\u043e</th><th>\u0421\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u044c, &#8381;</th><th class="gold">\u0418\u0442\u043e\u0433\u043e, &#8381;</th><th></th></tr></thead>
         <tbody id="wt${r.id}">${r.works.map(w=>wr(r.id,w,q)).join('')}</tbody>
       </table></div>
       <div class="sec-footer">
@@ -1151,6 +1155,7 @@ function pr(rid,p,q=''){const tot=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);
   </tr>`;}
 function wr(rid,w,q=''){
   const rowHl=q&&(w.name||'').toLowerCase().includes(q.toLowerCase());
+  const tot=(parseFloat(w.price)||0)*(parseInt(w.qty)||0);
   return`<tr id="wr${w.id}"${rowHl?' class="hl-row"':''}>
     <td><div class="ac-wrap">
       <textarea class="tdi tdi-name" rows="1" placeholder="\u041d\u0430\u0438\u043c\u0435\u043d\u043e\u0432\u0430\u043d\u0438\u0435 \u0440\u0430\u0431\u043e\u0442\u044b..." id="wn${w.id}"
@@ -1161,6 +1166,7 @@ function wr(rid,w,q=''){
     </div></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${w.qty||1}" oninput="uW(${rid},'${w.id}','qty',this.value)"></td>
     <td><input class="tdi" type="number" style="text-align:center" value="${esc(w.price)}" placeholder="0" oninput="uW(${rid},'${w.id}','price',this.value)"></td>
+    <td class="tdt" id="wtot${w.id}">${tot>0?tot.toLocaleString('ru-RU'):'—'}</td>
     <td><button class="ib" onclick="rW(${rid},'${w.id}')">&#10005;</button></td>
   </tr>`;}
 
@@ -1264,7 +1270,7 @@ function acKey(e,pid){
 function tc(id){const r=gr(id);if(!r)return;r._open=!r._open;if(r._open)r._openedBySearch=false;rAll();}
 function upd(id,f,v){const r=gr(id);if(!r)return;r[f]=v;r._unsaved=true;sch(id);renderDash();}
 function uP(rid,pid,f,v){const r=gr(rid);if(!r)return;const p=r.parts.find(x=>String(x.id)===String(pid));if(!p)return;p[f]=v;r._unsaved=true;if(f==='price'||f==='qty'){const t=(parseFloat(p.price)||0)*(parseInt(p.qty)||0);const el=document.getElementById('ptot'+pid);if(el)el.textContent=t>0?t.toLocaleString('ru-RU'):'—';const se=document.querySelector('#ps'+rid+' span');if(se)se.textContent=fmt(sP(r.parts));}sch(rid);}
-function uW(rid,wid,f,v){const r=gr(rid);if(!r)return;const w=r.works.find(x=>String(x.id)===String(wid));if(!w)return;w[f]=v;r._unsaved=true;if(f==='price'||f==='qty'){const se=document.querySelector('#ws'+rid+' span');if(se)se.textContent=fmt(sW(r.works));}sch(rid);}
+function uW(rid,wid,f,v){const r=gr(rid);if(!r)return;const w=r.works.find(x=>String(x.id)===String(wid));if(!w)return;w[f]=v;r._unsaved=true;if(f==='price'||f==='qty'){const t=(parseFloat(w.price)||0)*(parseInt(w.qty)||0);const el=document.getElementById('wtot'+wid);if(el)el.textContent=t>0?t.toLocaleString('ru-RU'):'—';const se=document.querySelector('#ws'+rid+' span');if(se)se.textContent=fmt(sW(r.works));}sch(rid);}
 function aP(rid){const r=gr(rid);if(!r)return;const p=nP();r.parts.push(p);r._unsaved=true;const tb=document.getElementById('pt'+rid);if(tb)tb.insertAdjacentHTML('beforeend',pr(rid,p));sch(rid);}
 function rP(rid,pid){const r=gr(rid);if(!r)return;r.parts=r.parts.filter(p=>String(p.id)!==String(pid));r._unsaved=true;const el=document.getElementById('pr'+pid);if(el)el.remove();const se=document.querySelector('#ps'+rid+' span');if(se)se.textContent=fmt(sP(r.parts));sch(rid);}
 function aW(rid){const r=gr(rid);if(!r)return;const w=nW();r.works.push(w);r._unsaved=true;const tb=document.getElementById('wt'+rid);if(tb)tb.insertAdjacentHTML('beforeend',wr(rid,w));sch(rid);}
