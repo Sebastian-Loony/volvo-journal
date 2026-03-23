@@ -189,8 +189,8 @@ body.ptr-pulling{transition:transform .1s}
 
 /* ═══════════ TABLE ═══════════ */
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:var(--card2);color:var(--muted);padding:8px 10px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--border);white-space:nowrap;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:auto}
+th{background:var(--card2);color:var(--muted);padding:8px 10px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid var(--border);white-space:nowrap}
 th:first-child{text-align:left}
 th.gold{color:var(--gold-l)}
 td{padding:9px 10px;border-bottom:1px solid var(--border)55;vertical-align:top;text-align:center}
@@ -202,12 +202,18 @@ tbody tr:hover td{background:var(--accent-bg)}
 td:nth-child(n+2),th:nth-child(n+2){text-align:center}
 td:nth-child(n+2) .tdi{text-align:center}
 .tdt{text-align:center;color:var(--gold-l);font-weight:700;font-size:13px;white-space:nowrap;vertical-align:top}
+
+/* Базовые стили полей ввода */
 .tdi{background:transparent;border:none;color:var(--text);padding:0;font-size:13px;font-weight:400;width:100%;outline:none;resize:none;overflow:hidden;display:block;line-height:1.4;text-align:inherit}
 .tdi:focus{color:var(--gold-l)}
+
+/* Наименование — перенос по словам, растёт вниз */
 .tdi-name{word-break:break-word;white-space:pre-wrap;vertical-align:top;text-align:left}
-.tdi-brand{white-space:nowrap;overflow:hidden;width:auto;min-width:20px}
-/* Артикул — тоже не растягивает ячейку */
-td:nth-child(3) .tdi{white-space:nowrap;overflow:hidden;width:auto;min-width:20px}
+
+/* Бренд и артикул — в одну строку, не переносятся */
+.tdi-brand{white-space:nowrap}
+td:nth-child(3) .tdi{white-space:nowrap}
+
 .ib{background:none;border:none;color:var(--muted);font-size:15px;padding:4px 4px;border-radius:4px;min-width:26px;min-height:26px;display:block}
 .ib:hover{color:#e74c3c}
 .sec-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 4px}
@@ -222,32 +228,28 @@ td:nth-child(3) .tdi{white-space:nowrap;overflow:hidden;width:auto;min-width:20p
 .fta{background:transparent;border:none;color:var(--text);padding:0;font-size:13px;font-weight:400;width:100%;resize:none;outline:none;min-height:60px;font-family:'Inter',sans-serif;line-height:1.6}
 .fta:focus{color:var(--text)}
 
-/* ПК — авто layout, все колонки по содержимому, наименование растягивается */
+/* ПК */
 @media(min-width:768px){
-  table{table-layout:auto}
-  /* Наименование — занимает всё свободное место, перенос */
-  td:first-child,th:first-child{width:100%;white-space:normal;word-break:break-word;text-align:left}
-  .tdi-name{white-space:normal;word-break:break-word;overflow:visible;text-overflow:unset}
-  /* Бренд — по содержимому, без переноса */
+  /* Наименование — всё свободное место */
+  td:first-child,th:first-child{width:40%;min-width:160px;text-align:left}
+  /* Бренд — по содержимому, не переносить */
   td:nth-child(2),th:nth-child(2){width:1%;white-space:nowrap;padding-left:14px}
-  /* Артикул — по содержимому, без переноса */
+  td:nth-child(2) .tdi{white-space:nowrap}
+  /* Артикул — по содержимому, не переносить */
   td:nth-child(3),th:nth-child(3){width:1%;white-space:nowrap;padding-left:14px}
-  /* Числовые — минимальные */
+  td:nth-child(3) .tdi{white-space:nowrap}
+  /* Числовые колонки — минимальная ширина */
   td:nth-child(4),th:nth-child(4){width:1%;white-space:nowrap;padding-left:14px}
   td:nth-child(5),th:nth-child(5){width:1%;white-space:nowrap;padding-left:14px}
   td:nth-child(6),th:nth-child(6){width:1%;white-space:nowrap;padding-left:14px}
 }
 
-/* Мобильный — колонки по содержимому, горизонтальная прокрутка */
+/* Мобильный — горизонтальная прокрутка */
 @media(max-width:767px){
-  table{table-layout:auto;min-width:540px}
-  td,th{white-space:nowrap}
-  /* Наименование — перенос */
+  table{min-width:540px}
   td:first-child,th:first-child{min-width:110px;max-width:150px;white-space:normal;text-align:left}
-  /* Бренд — шире, перенос по словам */
   td:nth-child(2),th:nth-child(2){min-width:100px;white-space:normal;word-break:break-word}
   td:nth-child(2) .tdi{white-space:normal;word-break:break-word}
-  /* Артикул — шире, перенос */
   td:nth-child(3),th:nth-child(3){min-width:95px;white-space:normal;word-break:break-word}
   td:nth-child(3) .tdi{white-space:normal;word-break:break-word}
   td:nth-child(4),th:nth-child(4){min-width:50px;text-align:center}
