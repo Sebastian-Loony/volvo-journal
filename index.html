@@ -271,10 +271,16 @@ td:nth-child(n+2) .tdi{text-align:center}
 .works-table td:nth-child(3),.works-table th:nth-child(3){width:1%;white-space:nowrap;padding-left:12px}
 .works-table td:nth-child(4),.works-table th:nth-child(4){width:1%;white-space:nowrap;padding-left:12px}
 .works-table td:last-child,.works-table th:last-child{width:36px}
-/* Переопределяем min-width внутри мобильного медиазапроса чтобы выиграть у общего table правила */
 @media(max-width:767px){
-  .works-table{min-width:260px!important}
-  .works-table td:first-child,.works-table th:first-child{min-width:0;max-width:none}
+  .works-table{min-width:0!important;width:100%}
+  /* Перебиваем общий white-space:nowrap для таблицы работ */
+  .works-table td,.works-table th{white-space:normal}
+  .works-table td:first-child,.works-table th:first-child{min-width:120px;white-space:normal;word-break:break-word}
+  .works-table td:nth-child(2),.works-table th:nth-child(2){white-space:nowrap;min-width:50px;padding-left:8px}
+  .works-table td:nth-child(3),.works-table th:nth-child(3){white-space:nowrap;min-width:70px;padding-left:8px}
+  .works-table td:nth-child(4),.works-table th:nth-child(4){white-space:nowrap;min-width:65px;padding-left:8px}
+  .works-table td:last-child{min-width:30px}
+  .works-table .tdi-name{white-space:pre-wrap;word-break:break-word}
 }
 .smb{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;font-weight:500;padding:5px 14px;margin-top:6px;letter-spacing:.3px;cursor:pointer}
 .smb:hover{border-color:var(--gold);color:var(--gold-l)}
